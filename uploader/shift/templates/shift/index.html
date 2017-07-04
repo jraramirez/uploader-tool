@@ -1,3 +1,24 @@
 {% load static %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'shift_upload/style.css' %}" />
+
+<html>
+<head>
+    <title>Shift Upload</title>
+</head>
+<body>
+    <h3>Shift Upload</h3>
+    <a href="/uploader/shift/upload/">Upload</a>
+
+    {% if responses %}
+        <hr>    
+        <p>
+            <ul>
+            {% for response in responses %}
+            <li>{{ response }}</li>
+            {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
+</body>
+</html>

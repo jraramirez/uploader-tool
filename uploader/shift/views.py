@@ -12,20 +12,37 @@ class UploadFileForm(forms.Form):
     file = forms.FileField()
 
 def index(request):
-    output = "Shift Upload"
-    return HttpResponse(output)
+    return render(
+        request,
+        'shift/index.html',
+    )
 
 # Upload View
 def upload(request):
     # Submit File View
     if request.method == "POST" and request.POST.get('upload'):
+        responses = []
         form = UploadFileForm(request.POST, request.FILES)
         inputFile = request.FILES['file']
         if form.is_valid():
-            # UploadLogic.properInsert(inputFile)
-            return HttpResponse("OK", status=200)
+            UploadLogic.properInsert(inputFile)
+            responses.append('File upload successful.')
+            return render(
+                request,
+                'shift/index.html',
+                {
+                    'responses': responses
+                },
+            )
         else:
-            return HttpResponseBadRequest()
+            responses.append('There was an error in uploading the file. Make sure to validate the file you uploaded.')
+            return render(
+                request,
+                'shift/index.html',
+                {
+                    'responses': responses
+                },
+            )
 
     # Validate File
     elif(request.method == "POST" and request.POST.get('validate metadata')):

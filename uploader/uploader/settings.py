@@ -24,8 +24,9 @@ SECRET_KEY = '*x79vayui$$2k&bx!wete@_0^6k@9p7&gv6&$du7ps4&sjrii_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = False
 
-# ALLOWED_HOSTS = ['16.179.110.132']
+# ALLOWED_HOSTS = ['16.179.110.132', 'a4pgbizopsdev.svcs.entsvcs.net']
 ALLOWED_HOSTS = []
 
 # Application definition
