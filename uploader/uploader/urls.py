@@ -16,8 +16,16 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
+from . import views
+
 urlpatterns = [
-    url(r'^uploader/', include('manager.urls')),
-    url(r'^shift/', include('shift.urls')),
-    url(r'^admin/', admin.site.urls),
+    
+    # Link to types of uploads
+    url(r'^uploader/', include([
+        url(r'^$', views.index, name='index'),
+        url(r'^shift/', include('shift.urls')),
+    ])),
+
+    # Manager urls
+    url(r'^manager/', include('manager.urls')),
 ]

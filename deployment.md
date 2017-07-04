@@ -1,7 +1,7 @@
-# Installations
+### Installations
     - Python 3.5.x
 
-# Python Installations
+### Python Installations
     - pip install django
     - pip install django-pyodbc
     - pip install django-pyodbc-azure
