@@ -10,12 +10,26 @@
     <h3>Shift Upload</h3>
     <a href="/uploader/shift/upload/">Upload</a>
 
+    <!-- View of responses about the file-->
     {% if responses %}
         <hr>    
         <p>
             <ul>
             {% for response in responses %}
             <li>{{ response }}</li>
+            {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
+    
+    <!-- View of file warnings -->    
+    {% if warnings %}
+        <hr>    
+        File Warnings:
+        <p>
+            <ul>
+            {% for warning in warnings %}
+            <li>{{ warning }}</li>
             {% endfor %}
             </ul>
         </p>

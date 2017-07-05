@@ -207,3 +207,22 @@ class UploadLogic:
                         t.save()
                     i = i + 1
 
+        # Blank values per required column validation
+        # TODO: Do this during upload
+        # TODO: Do this in the temp table, not in the file
+        # metadataColumns = self.getUploaderMetadataColumns(self)
+        # required = []
+        # for metaCol in metadataColumns:
+        #     required.append(metaCol[5])
+        # for columnNumber in range(1, nCols+1):
+        #     if(required[columnNumber-1] == 'Y'):
+        #         hasBlank = False
+        #         columnLetter = SpreadSheetLogic.getColumnLetter(columnNumber)
+        #         temp = columnLetter + '{}:' + columnLetter + '{}'
+        #         for row in ws.iter_rows(temp.format(ws.min_row+1,ws.max_row)):
+        #             for cell in row:
+        #                 if(cell.value == None):
+        #                     hasBlank = True
+        #             if(hasBlank and required[columnNumber-1] == 'Y'):
+        #                 errors.append("Column has blank values: '" + colNames[columnNumber-1] + "'. This column is required.")
+        #                 break

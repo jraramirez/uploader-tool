@@ -21,17 +21,21 @@ def index(request):
 def upload(request):
     # Submit File View
     if request.method == "POST" and request.POST.get('upload'):
-        responses = []
+        returned = []
+        warnings = []
         form = UploadFileForm(request.POST, request.FILES)
         inputFile = request.FILES['file']
         if form.is_valid():
-            UploadLogic.properInsert(inputFile)
-            responses.append('File upload successful.')
+            logic = UploadLogic
+            returned = logic.properInsert(logic,inputFile)
+            responses = returned[0]
+            warnings = returned[1]
             return render(
                 request,
                 'shift/index.html',
                 {
-                    'responses': responses
+                    'responses': responses,
+                    'warnings': warnings
                 },
             )
         else:
@@ -40,7 +44,8 @@ def upload(request):
                 request,
                 'shift/index.html',
                 {
-                    'responses': responses
+                    'responses': responses,
+                    'warnings': warnings
                 },
             )
 
