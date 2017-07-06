@@ -10,6 +10,9 @@ from manager.spreadsheet import SpreadSheetLogic
 from openpyxl import load_workbook
 from django.db import transaction
 import ast
+import os 
+# import listdir
+# from os.path import isfile, join
 
 class UploadLogic:
 
@@ -52,7 +55,8 @@ class UploadLogic:
                 uploaderMetadata[0].target_schema, 
                 uploaderMetadata[0].target_table,
                 uploaderMetadata[0].last_update_uid, 
-                uploaderMetadata[0].last_update
+                uploaderMetadata[0].last_update, 
+                uploaderMetadata[0].server
             ]
         return uploaderMetadata
 
@@ -153,8 +157,36 @@ class UploadLogic:
         ]
         return labels
 
+    #  Validate folder and file existence
+    def validateFile(self):
+        valid = True
+        errors = []
+        metadata = self.getUploaderMetadata(self)
+        
+        # Check if folder is valid
+        folderPath = "\\\%s%s" % (metadata[11], metadata[3])
+        if(os.path.exists(folderPath)):
+            files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
+            if(len(files) > 1):
+                valid = False
+                errors.append("More than one file was found in the source folder.")
+        else:
+            valid = False
+            errors.append("Invalid source folder: " + "Expected: '" + folderPath + "'.")
+        
+        errors.insert(0, valid)
+        return errors
 
-    #  Validate the metadata of the file
+    # Get the file from the source path
+    def getInputFile(self):
+        metadata = self.getUploaderMetadata(self)
+        folderPath = "\\\%s%s" % (metadata[11], metadata[3])
+        files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
+        fullPath = folderPath + "\\" + files[0]
+        f = open(fullPath, 'rb')
+        return f
+
+    #  Validate the metadata of the file ()
     def validateFileMetadata(self, inputFile):
         valid = True
         errors = []
@@ -166,7 +198,7 @@ class UploadLogic:
 
         sheetNames = wb.get_sheet_names()       # Sheet Names
         fileName = inputFile.name               # File Name
-        fileType = inputFile.content_type       # File Type
+        # fileType = inputFile.content_type       # File Type
         colNames = []                           # Column Names and nCols
         nCols = 0
         ws = wb[sheetNames[0]]
@@ -180,9 +212,9 @@ class UploadLogic:
         metadata = self.getUploaderMetadata(self)
 
         # File type validation
-        if(not fileType == metadata[5]):
-            valid = False
-            errors.append("Invalid file type: " + "Expected: '" + str(metadata[5]) + "'. Found: " + str(fileType) + "'")
+        # if(not fileType == metadata[5]):
+        #     valid = False
+        #     errors.append("Invalid file type: " + "Expected: '" + str(metadata[5]) + "'. Found: " + str(fileType) + "'")
 
         # Sheet name validation
         if(not str(sheetNames[0]) == metadata[6]):
@@ -217,21 +249,6 @@ class UploadLogic:
             # Format validation
             # TODO: If needed
             # formats = []
-            # for metaCol in metadataColumns:
-            #     formats.append(metaCol[7])
-            # for columnNumber in range(1, nCols+1):
-            #     if(formats[columnNumber-1]):
-            #         isValidFormat = True
-            #         columnLetter = SpreadSheetLogic.getColumnLetter(columnNumber)
-            #         temp = columnLetter + '{}:' + columnLetter + '{}'
-            #         for row in ws.iter_rows(temp.format(ws.min_row+1,ws.max_row)):
-            #             for cell in row:
-            #                 # TODO: Check format
-            #                 # print("Value found: " + cell.value + " Expected format: " + formats[columnNumber-1])
-            #                 formats[columnNumber-1] = formats[columnNumber-1]
-            #             if(not isValidFormat):
-            #                 errors.append("Column does not follow expected format: '" + colNames[columnNumber-1] + "'. Expected: "+ formats[columnNumber-1] + ".")
-            #                 break
 
         errors.insert(0, valid)
         return errors
@@ -262,6 +279,7 @@ class UploadLogic:
                         r.append(None)
                 for j in range(len(row), nCols):
                     r.append(None)
+                print(i)
                 if(len(r) > 0):
                     if(i > startRow):
                         r.insert(0, i)
