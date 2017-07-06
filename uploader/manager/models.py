@@ -7,6 +7,7 @@ class MTDTA_UPLOADER(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=255)
     source_path = models.CharField(max_length=255)
+    server = models.CharField(max_length=255)
     file_name = models.CharField(max_length=255)
     file_type = models.CharField(max_length=255)
     sheet_name = models.CharField(max_length=255)

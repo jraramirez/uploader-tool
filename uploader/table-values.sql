@@ -10,6 +10,7 @@ INSERT INTO [dbo].[manager_mtdta_uploader]
            ,[name]
            ,[description]
            ,[source_path]
+           ,[server]
            ,[file_name]
            ,[file_type]
            ,[sheet_name]
@@ -21,7 +22,8 @@ INSERT INTO [dbo].[manager_mtdta_uploader]
            (1
 	      ,'shift'
            ,'File upload of monthly shift'
-           ,'\\pg_bizops\\DATA_UPLOAD\\FIN005\\'
+           ,'\pg_bizops\FILE_UPLOADER\SHIFT\New'
+           ,'a4pgbizopsdev.svcs.entsvcs.net'
            ,'2017_03_EOT_RAW.xlsx'
            ,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
            ,'P&G Raw'
