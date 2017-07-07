@@ -17,21 +17,93 @@ def index(request):
         'shift/index.html',
     )
 
-# Upload View
+# Auto-Upload View
+def auto_upload(request):
+    form = None
+    errors = []
+    warnings = []
+    returned = []
+    responses = []
+    valid = False
+
+    uploaderMetadata = []
+    uploaderMetadataParameters = []
+    uploaderMetadataColumns = []
+
+    uploaderMetadataLables = []
+    uploaderMetadataParameterLabels = []
+    uploaderMetadataColumnLabels = []
+   
+    # Get uploader metadata parameters and columns from database
+    logic = UploadLogic
+    uploaderMetadata = logic.getUploaderMetadata(logic)
+    uploaderMetadataParameters = logic.getUploaderMetadataParameters(logic)
+    uploaderMetadataColumns = logic.getUploaderMetadataColumns(logic)
+
+    uploaderMetadataLabels = logic.getUploaderMetadataLabels(logic)
+    uploaderMetadataParameterLabels = logic.getUploaderMetadataParameterLabels(logic)
+    uploaderMetadataColumnLabels = logic.getUploaderMetadataColumnLabels(logic)
+
+    if(uploaderMetadata):
+        uploaderMetadata = zip(uploaderMetadataLabels, uploaderMetadata)
+
+    # Validate folder and file existence
+    errors = logic.validateFile(logic)
+    valid = errors[0]
+    if(not valid):
+        errors = errors[1:len(errors)]
+    else:
+        inputFile = logic.getInputFile(logic)
+        errors = logic.validateFileMetadata(logic, inputFile)
+        valid = errors[0]
+        if(not valid):
+            errors = errors[1:len(errors)]
+        else:
+            errors = []
+            inputFile = logic.getInputFile(logic)
+            returned = logic.properInsert(logic, inputFile)
+            responses = returned[0]
+            warnings = returned[1]
+    
+    print(errors)
+    print(warnings)
+
+    return render(
+        request,
+        'shift/upload.html',
+        {
+            'form': form,
+            'valid': valid,
+            'responses': responses,
+            'errors': errors,
+            'warnings': warnings,
+            'uploaderMetadata': uploaderMetadata,
+            'uploaderMetadataParameters': uploaderMetadataParameters,
+            'uploaderMetadataParameterLabels': uploaderMetadataParameterLabels,
+            'uploaderMetadataColumns': uploaderMetadataColumns,
+            'uploaderMetadataColumnLabels': uploaderMetadataColumnLabels,
+        },
+    )
+
+# Manual Upload View
 def upload(request):
     # Submit File View
     if request.method == "POST" and request.POST.get('upload'):
-        responses = []
+        returned = []
+        warnings = []
         form = UploadFileForm(request.POST, request.FILES)
         inputFile = request.FILES['file']
         if form.is_valid():
-            UploadLogic.properInsert(inputFile)
-            responses.append('File upload successful.')
+            logic = UploadLogic
+            returned = logic.properInsert(logic,inputFile)
+            responses = returned[0]
+            warnings = returned[1]
             return render(
                 request,
                 'shift/index.html',
                 {
-                    'responses': responses
+                    'responses': responses,
+                    'warnings': warnings
                 },
             )
         else:
@@ -40,7 +112,8 @@ def upload(request):
                 request,
                 'shift/index.html',
                 {
-                    'responses': responses
+                    'responses': responses,
+                    'warnings': warnings
                 },
             )
 

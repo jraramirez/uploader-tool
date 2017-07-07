@@ -3,6 +3,7 @@
     <title>Excel File Upload</title>
 </head>
 <body>
+    {% if form %}
     <h3>Excel File Upload</h3>
 
     <p>Select the Excel file</p>
@@ -16,7 +17,21 @@
             <input type="submit" value="Upload" name="upload">
         {% endif %}
     </form>
+    {% endif %}
 
+    <!-- View of responses about the file-->
+    {% if responses %}
+        <hr>    
+        <p>
+            <ul>
+            {% for response in responses %}
+            <li>{{ response }}</li>
+            {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
+
+    <!-- View of file errors-->
     {% if errors %}
         <hr>    
         File Invalid:
@@ -27,8 +42,19 @@
             {% endfor %}
             </ul>
         </p>
-    {% elif valid and not errors %}
-        <p>File is Valid</p>
+    {% endif %}
+
+    <!-- View of file warnings-->
+    {% if warnings %}
+        <hr>    
+        File Warnings:
+        <p style="color: red;">
+            <ul>
+            {% for warning in warnings %}
+            <li>{{ warning }}</li>
+            {% endfor %}
+            </ul>
+        </p>
     {% endif %}
 
     <!-- View of file metadata-->

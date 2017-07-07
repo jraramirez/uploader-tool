@@ -10,6 +10,9 @@ from manager.spreadsheet import SpreadSheetLogic
 from openpyxl import load_workbook
 from django.db import transaction
 import ast
+import os 
+# import listdir
+# from os.path import isfile, join
 
 class UploadLogic:
 
@@ -52,7 +55,8 @@ class UploadLogic:
                 uploaderMetadata[0].target_schema, 
                 uploaderMetadata[0].target_table,
                 uploaderMetadata[0].last_update_uid, 
-                uploaderMetadata[0].last_update
+                uploaderMetadata[0].last_update, 
+                uploaderMetadata[0].server
             ]
         return uploaderMetadata
 
@@ -153,8 +157,36 @@ class UploadLogic:
         ]
         return labels
 
+    #  Validate folder and file existence
+    def validateFile(self):
+        valid = True
+        errors = []
+        metadata = self.getUploaderMetadata(self)
+        
+        # Check if folder is valid
+        folderPath = "\\\%s%s" % (metadata[11], metadata[3])
+        if(os.path.exists(folderPath)):
+            files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
+            if(len(files) > 1):
+                valid = False
+                errors.append("More than one file was found in the source folder.")
+        else:
+            valid = False
+            errors.append("Invalid source folder: " + "Expected: '" + folderPath + "'.")
+        
+        errors.insert(0, valid)
+        return errors
 
-    #  Validate the metadata of the file
+    # Get the file from the source path
+    def getInputFile(self):
+        metadata = self.getUploaderMetadata(self)
+        folderPath = "\\\%s%s" % (metadata[11], metadata[3])
+        files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
+        fullPath = folderPath + "\\" + files[0]
+        f = open(fullPath, 'rb')
+        return f
+
+    #  Validate the metadata of the file ()
     def validateFileMetadata(self, inputFile):
         valid = True
         errors = []
@@ -166,7 +198,7 @@ class UploadLogic:
 
         sheetNames = wb.get_sheet_names()       # Sheet Names
         fileName = inputFile.name               # File Name
-        fileType = inputFile.content_type       # File Type
+        # fileType = inputFile.content_type       # File Type
         colNames = []                           # Column Names and nCols
         nCols = 0
         ws = wb[sheetNames[0]]
@@ -180,9 +212,9 @@ class UploadLogic:
         metadata = self.getUploaderMetadata(self)
 
         # File type validation
-        if(not fileType == metadata[5]):
-            valid = False
-            errors.append("Invalid file type: " + "Expected: '" + str(metadata[5]) + "'. Found: " + str(fileType) + "'")
+        # if(not fileType == metadata[5]):
+        #     valid = False
+        #     errors.append("Invalid file type: " + "Expected: '" + str(metadata[5]) + "'. Found: " + str(fileType) + "'")
 
         # Sheet name validation
         if(not str(sheetNames[0]) == metadata[6]):
@@ -217,57 +249,12 @@ class UploadLogic:
             # Format validation
             # TODO: If needed
             # formats = []
-            # for metaCol in metadataColumns:
-            #     formats.append(metaCol[7])
-            # for columnNumber in range(1, nCols+1):
-            #     if(formats[columnNumber-1]):
-            #         isValidFormat = True
-            #         columnLetter = SpreadSheetLogic.getColumnLetter(columnNumber)
-            #         temp = columnLetter + '{}:' + columnLetter + '{}'
-            #         for row in ws.iter_rows(temp.format(ws.min_row+1,ws.max_row)):
-            #             for cell in row:
-            #                 # TODO: Check format
-            #                 # print("Value found: " + cell.value + " Expected format: " + formats[columnNumber-1])
-            #                 formats[columnNumber-1] = formats[columnNumber-1]
-            #             if(not isValidFormat):
-            #                 errors.append("Column does not follow expected format: '" + colNames[columnNumber-1] + "'. Expected: "+ formats[columnNumber-1] + ".")
-            #                 break
-                                        
-            # Data type validation
-            # TODO: Do this during upload
-            # TODO: Do this in the temp table, not in the file
-            types = []
-            for metaCol in metadataColumns:
-                types.append(metaCol[4])
-            for columnNumber in range(1, nCols+1):
-                if(types[columnNumber-1]):
-                    isValidType = True
-                    columnLetter = SpreadSheetLogic.getColumnLetter(columnNumber)
-                    temp = columnLetter + '{}:' + columnLetter + '{}'
-                    for row in ws.iter_rows(temp.format(ws.min_row+1,ws.max_row)):
-                        for cell in row:
-                            typeFound = str(type(cell.value).__name__)
-                            print("Column Name: " + colNames[columnNumber-1] + " Value: "+ str(cell.value) +"Type found: '" + str(type(cell.value).__name__) + "' Expected: " + types[columnNumber-1])
-                            if(not (str(type(cell.value).__name__) == types[columnNumber-1]) and not (cell.value == None)):
-                                isValidType = False
-                                break
-                        if(typeFound == 'datetime' and types[columnNumber-1] == 'time'):
-                            isValidType = True
-                        if(typeFound == 'time' and types[columnNumber-1] == 'datetime'):
-                            isValidType = True
-                        if(typeFound == 'int' and types[columnNumber-1] == 'float'):
-                            isValidType = True
-                        if(typeFound == 'float' and types[columnNumber-1] == 'int'):
-                            isValidType = True
-                        if(not isValidType):
-                            errors.append("Column '" + colNames[columnNumber-1] + "' does not follow expected data type. Expected: '" + types[columnNumber-1] + "'. Found: '" + typeFound + "'")
-                            break
+
         errors.insert(0, valid)
         return errors
 
-
     # Insert data into database
-    def properInsert(inputFile):
+    def properInsert(self, inputFile):
         responses = []
         warnings = []
         
@@ -292,9 +279,9 @@ class UploadLogic:
                         r.append(None)
                 for j in range(len(row), nCols):
                     r.append(None)
+                print(i)
                 if(len(r) > 0):
                     if(i > startRow):
-                        print(r)
                         r.insert(0, i)
                         t = TestFIN005Raw(
                             r[0],r[1],r[2],r[3],r[4],r[5],
@@ -308,21 +295,65 @@ class UploadLogic:
                     i = i + 1
                     
         # Blank values per required column validation
-        # TODO: Do this during upload
-        # TODO: Do this in the temp table, not in the file
         metadataColumns = self.getUploaderMetadataColumns(self)
+        returned = []
+        warnings = []
+        responses = []
         required = []
+        types = []
+        names = []
         for metaCol in metadataColumns:
             required.append(metaCol[5])
-        for columnNumber in range(1, nCols+1):
-            if(required[columnNumber-1] == 'Y'):
-                hasBlank = False
-                columnLetter = SpreadSheetLogic.getColumnLetter(columnNumber)
-                temp = columnLetter + '{}:' + columnLetter + '{}'
-                for row in ws.iter_rows(temp.format(ws.min_row+1,ws.max_row)):
-                    for cell in row:
-                        if(cell.value == None):
+            names.append(metaCol[2])
+            types.append(metaCol[4])
+        columnNumber = 0
+        for f in TestFIN005Raw._meta.get_fields():
+            if(not f.name == 'id'):
+                values = []
+                if(required[columnNumber] == 'Y'):
+                    hasBlank = False
+                    values = TestFIN005Raw.objects.values_list(f.name, flat=True)
+                    for value in values:
+                        if(value == None):
                             hasBlank = True
-                    if(hasBlank and required[columnNumber-1] == 'Y'):
-                        errors.append("Column has blank values: '" + colNames[columnNumber-1] + "'. This column is required.")
+                            break
+                    if(hasBlank and required[columnNumber] == 'Y'):
+                        warnings.append("Column has blank values: '" + names[columnNumber] + "'. This column is required.")
+                columnNumber = columnNumber + 1
+
+        
+        # Data type validation
+        columnNumber = 0
+        for f in TestFIN005Raw._meta.get_fields():
+            if(not f.name == 'id'):
+                isValidType = True
+                values = TestFIN005Raw.objects.values_list(f.name, flat=True)
+                for value in values:
+                    typeFound = str(type(value).__name__)
+                    if(not (str(typeFound) == str(types[columnNumber])) and not (str(typeFound) == 'NoneType')):
+                        isValidType = False
                         break
+                if(typeFound == 'datetime' and types[columnNumber] == 'time'):
+                    isValidType = True
+                if(typeFound == 'time' and types[columnNumber] == 'datetime'):
+                    isValidType = True
+                if(typeFound == 'int' and types[columnNumber] == 'float'):
+                    isValidType = True
+                if(typeFound == 'float' and types[columnNumber] == 'int'):
+                    isValidType = True
+                if(typeFound == 'Decimal' and types[columnNumber] == 'int'):
+                    isValidType = True
+                if(typeFound == 'str'):
+                    isValidType = True
+                if(not isValidType):
+                    warnings.append("Column '" + names[columnNumber] + "' does not follow expected data type. Expected: '" + types[columnNumber] + "'. Found: '" + typeFound + "'")
+                columnNumber = columnNumber + 1
+
+        if(len(warnings) > 0):
+            responses.append("File upload successful with warnings")
+        else:
+            responses.append("File upload successful.")
+        
+        returned.append(responses)
+        returned.append(warnings)
+        return returned
