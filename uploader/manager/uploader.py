@@ -10,9 +10,7 @@ from manager.spreadsheet import SpreadSheetLogic
 from openpyxl import load_workbook
 from django.db import transaction
 import ast
-import os 
-# import listdir
-# from os.path import isfile, join
+import os
 
 class UploadLogic:
 
