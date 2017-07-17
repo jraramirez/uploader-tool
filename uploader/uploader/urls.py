@@ -16,7 +16,8 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from . import views
+# from . import views
+from file_loader import views
 
 urlpatterns = [
     
@@ -24,6 +25,7 @@ urlpatterns = [
     url(r'^uploader/', include([
         url(r'^$', views.index, name='index'),
         url(r'^shift/', include('shift.urls')),
+        url(r'^auto/(?P<uploader_name>[a-z]+)/$', views.auto_upload, name='auto_upload'),
     ])),
 
     # Manager urls

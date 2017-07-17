@@ -23,11 +23,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '*x79vayui$$2k&bx!wete@_0^6k@9p7&gv6&$du7ps4&sjrii_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
+DEBUG = True
+# DEBUG = False
 
-ALLOWED_HOSTS = ['16.179.110.132', 'a4pgbizopsdev.svcs.entsvcs.net']
-# ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['16.179.110.132', 'a4pgbizopsdev.svcs.entsvcs.net']
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djangosecure',
     'shift',
+    'file_loader',
     'manager'
 ]
 

@@ -1,0 +1,139 @@
+<html>
+<head>
+    <title>Excel File Upload</title>
+</head>
+<body>
+    {% if form %}
+    <h3>Excel File Upload</h3>
+
+    <p>Select the Excel file</p>
+    <form action="" enctype="multipart/form-data"  method="post">
+        <table>
+            {{ form.as_table }}
+        </table>
+        {% csrf_token %}
+        <input type="submit" value="Validate Metadata" name="validate metadata">
+        {% if valid %}
+            <input type="submit" value="Upload" name="upload">
+        {% endif %}
+    </form>
+    {% endif %}
+
+    <!-- View of responses about the file-->
+    {% if responses %}
+        <hr>    
+        <p>
+            <ul>
+            {% for response in responses %}
+            <li>{{ response }}</li>
+            {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
+
+    <!-- View of file errors-->
+    {% if errors %}
+        <hr>    
+        File Invalid:
+        <p style="color: red;">
+            <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
+
+    <!-- View of file warnings-->
+    {% if warnings %}
+        <hr>    
+        File Warnings:
+        <p style="color: red;">
+            <ul>
+            {% for warning in warnings %}
+            <li>{{ warning }}</li>
+            {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
+
+    <!-- View of file metadata-->
+    {% if fileMetadata %}
+        <hr>
+        <p>
+            File metadata:
+        </p>
+        <p>
+        <table>
+            {% for label, data in fileMetadata %}
+            <tr>
+                <td>{{ label }}</td>
+                <td>{{ data }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    <!-- View of uploader metadata -->
+    {% if uploaderMetadata %}
+        <hr>
+        <p>
+            Uploader Metadata in database:
+        </p>
+        <table>
+            {% for label, data in uploaderMetadata %}
+            <tr>
+                <td>{{ label }}</td>
+                <td>{{ data }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    
+    <!-- View of uploader metadata parameters -->
+    {% if uploaderMetadataParameters %}
+        <hr>
+        <p>
+            Uploader Metadata Parameters in database:
+        </p>
+        <table>
+            <tr>
+                {% for label in uploaderMetadataParameterLabels %}
+                    <td>{{ label }}</td>
+                {% endfor %}
+            </tr>
+
+            {% for data in uploaderMetadataParameters %}
+            <tr>
+                {% for item in data %}
+                    <td>{{ item }}</td>
+                {% endfor %}    
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    <!-- View of uploader metadata columns -->
+    {% if uploaderMetadataColumns %}
+        <hr>
+        <p>
+            Uploader Metadata Columns in database:
+        </p>
+        <table>
+            <tr>
+                {% for label in uploaderMetadataColumnLabels %}
+                    <td>{{ label }}</td>
+                {% endfor %}
+            </tr>
+
+            {% for data in uploaderMetadataColumns %}
+                <tr>
+                    {% for item in data %}
+                        <td>{{ item }}</td>
+                    {% endfor %}    
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</body>
+</html>
