@@ -2,8 +2,7 @@ from manager.models import MTDTA_UPLOADER
 from manager.models import MTDTA_UPLOADER_PARAMS
 from manager.models import MTDTA_UPLOADER_COLS
 
-from shift.models import TempFIN005Raw
-from shift.models import TestFIN005Raw
+from file_loader.models import shift_temp_table
 
 from manager.spreadsheet import SpreadSheetLogic
 from manager.uploader import UploadLogic
@@ -30,8 +29,8 @@ class InsertLogic:
         # SHIFT
         # Upload data from file to the database
         if(uploader_name == 'shift'):
-            # Specific to shift: use target table TestFIN005Raw
-            TestFIN005Raw.objects.all().delete()
+            # Specific to shift: use target table shift_temp_table
+            shift_temp_table.objects.all().delete()
             with transaction.atomic():
                 wb = load_workbook(inputFile)
                 sheetNames = wb.get_sheet_names()
@@ -60,7 +59,7 @@ class InsertLogic:
                     if(len(r) > 0):
                         if(i > startRow):
                             r.insert(0, i)
-                            t = TestFIN005Raw(
+                            t = shift_temp_table(
                                 r[0],r[1],r[2],r[3],r[4],r[5],
                                 r[6],r[7],r[8],r[9],r[10],r[11],
                                 r[12],r[13],r[14],r[15],r[16],
@@ -77,12 +76,12 @@ class InsertLogic:
                 names.append(metaCol[2])
                 types.append(metaCol[4])
             columnNumber = 0
-            for f in TestFIN005Raw._meta.get_fields():
+            for f in shift_temp_table._meta.get_fields():
                 if(not f.name == 'id'):
                     values = []
                     if(required[columnNumber] == 'Y'):
                         hasBlank = False
-                        values = TestFIN005Raw.objects.values_list(f.name, flat=True)
+                        values = shift_temp_table.objects.values_list(f.name, flat=True)
                         for value in values:
                             if(value == None):
                                 hasBlank = True
@@ -93,10 +92,10 @@ class InsertLogic:
 
             # Data type validation
             columnNumber = 0
-            for f in TestFIN005Raw._meta.get_fields():
+            for f in shift_temp_table._meta.get_fields():
                 if(not f.name == 'id'):
                     isValidType = True
-                    values = TestFIN005Raw.objects.values_list(f.name, flat=True)
+                    values = shift_temp_table.objects.values_list(f.name, flat=True)
                     for value in values:
                         typeFound = str(type(value).__name__)
                         if(not (str(typeFound) == str(types[columnNumber])) and not (str(typeFound) == 'NoneType')):

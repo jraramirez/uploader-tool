@@ -2,9 +2,6 @@ from manager.models import MTDTA_UPLOADER
 from manager.models import MTDTA_UPLOADER_PARAMS
 from manager.models import MTDTA_UPLOADER_COLS
 
-from shift.models import TempFIN005Raw
-from shift.models import TestFIN005Raw
-
 from manager.spreadsheet import SpreadSheetLogic
 
 from openpyxl import load_workbook
