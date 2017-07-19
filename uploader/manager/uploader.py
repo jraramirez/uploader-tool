@@ -14,49 +14,39 @@ import os
 
 class UploadLogic:
 
-    # Read the metadata of the file
-    def readFileMetadata(inputFile):
-        wb = load_workbook(inputFile)
-        contents = []
-
-        sheetNames = wb.get_sheet_names()       # Sheet Names
-        fileName = inputFile.name               # File Name
-        fileType = inputFile.content_type       # File Type
-        colNames = []                           # Column Names and nCols
-        nCols = 0
-        colNamesLength = 0
-        # TODO: Assumes that the first sheet is read
-        ws = wb[sheetNames[0]]
-        for row in ws.rows:
-            for cell in row:
-                colNames.append(cell.value)
-                nCols = nCols + 1
-            break
-
-        contents = [sheetNames, colNames, fileName, fileType, nCols]
-        return contents
-
     # Get the uploader metadata from database
-    # TODO: Parameterize the upload type
-    def getUploaderMetadata(self):
+    def getUploaderMetadata(self, uploader_name):
+        valid = True
+        returned = []
+        errors = []
         uploaderMetadata = []
         if(MTDTA_UPLOADER.objects.all().exists()):
-            uploaderMetadata = MTDTA_UPLOADER.objects.all()
-            uploaderMetadata = [
-                uploaderMetadata[0].uploader, 
-                uploaderMetadata[0].name, 
-                uploaderMetadata[0].description, 
-                uploaderMetadata[0].source_path,
-                uploaderMetadata[0].file_name,
-                uploaderMetadata[0].file_type,
-                uploaderMetadata[0].sheet_name,    
-                uploaderMetadata[0].target_schema, 
-                uploaderMetadata[0].target_table,
-                uploaderMetadata[0].last_update_uid, 
-                uploaderMetadata[0].last_update, 
-                uploaderMetadata[0].server
-            ]
-        return uploaderMetadata
+            uploaderMetadata = MTDTA_UPLOADER.objects.filter(name=uploader_name)
+            if(uploaderMetadata):
+                uploaderMetadata = [
+                    uploaderMetadata[0].uploader, 
+                    uploaderMetadata[0].name, 
+                    uploaderMetadata[0].description, 
+                    uploaderMetadata[0].source_path,
+                    uploaderMetadata[0].file_name,
+                    uploaderMetadata[0].file_type,
+                    uploaderMetadata[0].sheet_name,    
+                    uploaderMetadata[0].target_schema, 
+                    uploaderMetadata[0].target_table,
+                    uploaderMetadata[0].last_update_uid, 
+                    uploaderMetadata[0].last_update, 
+                    uploaderMetadata[0].server
+                ]
+            else:
+                errors.append("Uploader name not found: '" + uploader_name + "'.")
+                valid = False
+        else:
+            errors.append("Uploader is not set up properly.")
+            valid = False
+        returned.append(uploaderMetadata)
+        returned.append(valid)
+        returned.append(errors)
+        return returned
 
     # Get the uploader metadata labels from database
     # TODO: Get uploader metadata labels from database
@@ -79,10 +69,15 @@ class UploadLogic:
 
     # Get the uploader metadata parameters from database
     # TODO: Parameterize the upload type
-    def getUploaderMetadataParameters(self):
+    def getUploaderMetadataParameters(self, uploader_name):
+        valid = True
+        returned = []
+        errors = []
+        uploaderMetadata = []
         uploaderMetadataParameters = []
         if(MTDTA_UPLOADER_PARAMS.objects.all().exists()):
-            meta_set = MTDTA_UPLOADER_PARAMS.objects.all()
+            uploader_id = MTDTA_UPLOADER.objects.filter(name=uploader_name)[0].uploader
+            meta_set = MTDTA_UPLOADER_PARAMS.objects.filter(uploader_id=uploader_id)
             for meta in meta_set.iterator():
                 uploaderMetadataParameters.append([
                     meta.uploader_id, 
@@ -96,7 +91,13 @@ class UploadLogic:
                     meta.last_update_uid,
                     meta.last_update,
                 ])
-        return uploaderMetadataParameters
+        else:
+            errors.append("Uploader parameters is not set up properly.")
+            valid = False
+        returned.append(uploaderMetadataParameters)
+        returned.append(valid)
+        returned.append(errors)
+        return returned
 
     # Get the uploader metadata parameter labels from database
     # TODO: Get uploader metadata parameter labels from database
@@ -117,11 +118,15 @@ class UploadLogic:
         return labels
 
     # Get the uploader metadata columns from database
-    # TODO: Parameterize the upload type
-    def getUploaderMetadataColumns(self):
+    def getUploaderMetadataColumns(self, uploader_name):
+        valid = True
+        returned = []
+        errors = []
+        uploaderMetadata = []
         uploaderMetadataColumns = []
         if(MTDTA_UPLOADER_COLS.objects.all().exists()):
-            meta_set = MTDTA_UPLOADER_COLS.objects.all()
+            uploader_id = MTDTA_UPLOADER.objects.filter(name=uploader_name)[0].uploader
+            meta_set = MTDTA_UPLOADER_COLS.objects.filter(uploader_id=uploader_id)
             for meta in meta_set.iterator():
                 uploaderMetadataColumns.append([
                     meta.uploader_id, 
@@ -134,8 +139,14 @@ class UploadLogic:
                     meta.format,
                     meta.last_update_uid,
                     meta.last_update,
-                ])
-        return uploaderMetadataColumns
+                ])            
+        else:
+            errors.append("Uploader columns is not set up properly.")
+            valid = False
+        returned.append(uploaderMetadataColumns)
+        returned.append(valid)
+        returned.append(errors)
+        return returned
 
     # Get the uploader metadata column labels from database
     # TODO: Get uploader metadata column labels from database
@@ -156,13 +167,15 @@ class UploadLogic:
         return labels
 
     #  Validate folder and file existence
-    def validateFile(self):
-        valid = True
+    def validateFile(self, uploader_name):
+        valid = True    
         errors = []
-        metadata = self.getUploaderMetadata(self)
+        returned = []
+
+        uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
         
         # Check if folder is valid
-        folderPath = "\\\%s%s" % (metadata[11], metadata[3])
+        folderPath = "\\\%s%s" % (uploaderMetadata[11], uploaderMetadata[3])
         if(os.path.exists(folderPath)):
             files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
             if(len(files) > 1):
@@ -171,28 +184,28 @@ class UploadLogic:
         else:
             valid = False
             errors.append("Invalid source folder: " + "Expected: '" + folderPath + "'.")
-        
-        errors.insert(0, valid)
-        return errors
+
+        returned.append(None)
+        returned.append(valid)
+        returned.append(errors)
+        return returned
 
     # Get the file from the source path
-    def getInputFile(self):
-        metadata = self.getUploaderMetadata(self)
-        folderPath = "\\\%s%s" % (metadata[11], metadata[3])
+    def getInputFile(self, uploader_name):
+        uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
+        folderPath = "\\\%s%s" % (uploaderMetadata[11], uploaderMetadata[3])
         files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
         fullPath = folderPath + "\\" + files[0]
         f = open(fullPath, 'rb')
         return f
 
-    #  Validate the metadata of the file ()
-    def validateFileMetadata(self, inputFile):
-        valid = True
+    #  Validate the metadata of the file
+    def validateFileMetadata(self, inputFile, uploader_name):
+        valid = True    
         errors = []
-        
-        # TODO: Check if there is no saved metadata
+        returned = []
         
         wb = load_workbook(inputFile)
-        metadata = []
 
         sheetNames = wb.get_sheet_names()       # Sheet Names
         fileName = inputFile.name               # File Name
@@ -207,25 +220,27 @@ class UploadLogic:
             break
         
         # Validate uploader metadata
-        metadata = self.getUploaderMetadata(self)
+        uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
 
         # File type validation
-        # if(not fileType == metadata[5]):
+        # TODO: FIX
+        # if(not fileType == uploaderMetadata[5]):
         #     valid = False
-        #     errors.append("Invalid file type: " + "Expected: '" + str(metadata[5]) + "'. Found: " + str(fileType) + "'")
+        #     errors.append("Invalid file type: " + "Expected: '" + str(uploaderMetadata[5]) + "'. Found: " + str(fileType) + "'")
 
         # Sheet name validation
-        if(not str(sheetNames[0]) == metadata[6]):
+        # TODO: Find sheet for multiple sheets
+        if(not str(sheetNames[0]) == uploaderMetadata[6]):
             valid = False
-            errors.append("Invalid sheet name: " + "Expected: '" + str(metadata[6]) + "'. Found: " + str(sheetNames[0]) + "'")
+            errors.append("Invalid sheet name: " + "Expected: '" + str(uploaderMetadata[6]) + "'. Found: " + str(sheetNames[0]) + "'")
           
         # Validate File Metadata Columns
-        metadataColumns = self.getUploaderMetadataColumns(self)
+        metadataColumns = self.getUploaderMetadataColumns(self, uploader_name)[0]
 
         # Number of columns validation
         if(not len(metadataColumns) == nCols):
             valid = False
-            errors.append("Invalid number of columns: " + "Expected: '" + str(len(metadataColumns)) + "'. Found: " + str(nCols) + "'." + "")
+            errors.append("Invalid number of columns: " + "Expected: '" + str(len(metadataColumns)) + "'. Found: '" + str(nCols) + "'." + "")
             metaColNames = []
             for metaCol in metadataColumns:
                 metaColNames.append(metaCol[2])
@@ -246,112 +261,8 @@ class UploadLogic:
             
             # Format validation
             # TODO: If needed
-            # formats = []
 
-        errors.insert(0, valid)
-        return errors
-
-    # Insert data into database
-    def properInsert(self, inputFile):
-        responses = []
-        warnings = []
-        
-        # Upload data from file to the database
-        TestFIN005Raw.objects.all().delete()
-        with transaction.atomic():
-            wb = load_workbook(inputFile)
-            sheetNames = wb.get_sheet_names()
-            ws = wb[sheetNames[0]]
-
-            nCols = MTDTA_UPLOADER_COLS.objects.all().count()
-            startRow = 0
-
-            i = 0
-            for row in ws.iter_rows():
-                r = []
-                j = 0
-                for cell in row:
-                    if(cell.value != None):
-                        r.append(str(cell.value))
-                    else:
-                        r.append(None)
-                for j in range(len(row), nCols):
-                    r.append(None)
-                print(i)
-                if(len(r) > 0):
-                    if(i > startRow):
-                        r.insert(0, i)
-                        t = TestFIN005Raw(
-                            r[0],r[1],r[2],r[3],r[4],r[5],
-                            r[6],r[7],r[8],r[9],r[10],r[11],
-                            r[12],r[13],r[14],r[15],r[16],
-                            r[17],r[18],r[19],r[20],r[21],
-                            r[22],r[23],r[24],r[25],r[26],
-                            r[27],r[28],r[29],
-                        )
-                        t.save()
-                    i = i + 1
-                    
-        # Blank values per required column validation
-        metadataColumns = self.getUploaderMetadataColumns(self)
-        returned = []
-        warnings = []
-        responses = []
-        required = []
-        types = []
-        names = []
-        for metaCol in metadataColumns:
-            required.append(metaCol[5])
-            names.append(metaCol[2])
-            types.append(metaCol[4])
-        columnNumber = 0
-        for f in TestFIN005Raw._meta.get_fields():
-            if(not f.name == 'id'):
-                values = []
-                if(required[columnNumber] == 'Y'):
-                    hasBlank = False
-                    values = TestFIN005Raw.objects.values_list(f.name, flat=True)
-                    for value in values:
-                        if(value == None):
-                            hasBlank = True
-                            break
-                    if(hasBlank and required[columnNumber] == 'Y'):
-                        warnings.append("Column has blank values: '" + names[columnNumber] + "'. This column is required.")
-                columnNumber = columnNumber + 1
-
-        
-        # Data type validation
-        columnNumber = 0
-        for f in TestFIN005Raw._meta.get_fields():
-            if(not f.name == 'id'):
-                isValidType = True
-                values = TestFIN005Raw.objects.values_list(f.name, flat=True)
-                for value in values:
-                    typeFound = str(type(value).__name__)
-                    if(not (str(typeFound) == str(types[columnNumber])) and not (str(typeFound) == 'NoneType')):
-                        isValidType = False
-                        break
-                if(typeFound == 'datetime' and types[columnNumber] == 'time'):
-                    isValidType = True
-                if(typeFound == 'time' and types[columnNumber] == 'datetime'):
-                    isValidType = True
-                if(typeFound == 'int' and types[columnNumber] == 'float'):
-                    isValidType = True
-                if(typeFound == 'float' and types[columnNumber] == 'int'):
-                    isValidType = True
-                if(typeFound == 'Decimal' and types[columnNumber] == 'int'):
-                    isValidType = True
-                if(typeFound == 'str'):
-                    isValidType = True
-                if(not isValidType):
-                    warnings.append("Column '" + names[columnNumber] + "' does not follow expected data type. Expected: '" + types[columnNumber] + "'. Found: '" + typeFound + "'")
-                columnNumber = columnNumber + 1
-
-        if(len(warnings) > 0):
-            responses.append("File upload successful with warnings")
-        else:
-            responses.append("File upload successful.")
-        
-        returned.append(responses)
-        returned.append(warnings)
+        returned.append(None)
+        returned.append(valid)
+        returned.append(errors)
         return returned

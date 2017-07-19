@@ -66,7 +66,8 @@ The implementation will utilize python libraries that can read any type of excel
 https://github.hpe.com/TTT/uploader-tool/blob/master/deployment.md
 
 ### Running in the Server
-1. Go to the directory uploader-tool/uploader
-2. Run the command ```python manage.py runserver 0.0.0.0:80```
-3. Access the web client at http://a4pgbizopsdev.svcs.entsvcs.net/uploader
+1. Run a command line interface in the server
+2. Go to the directory uploader-tool\uploader ```cd uploader-tool\uploader```
+3. Run the command ```python manage.py runserver 0.0.0.0:80```
+4. Access the web client at http://a4pgbizopsdev.svcs.entsvcs.net/uploader
 

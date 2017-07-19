@@ -1,0 +1,39 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'shift_upload/style.css' %}" />
+
+<html>
+<head>
+    <title>Shift Upload</title>
+</head>
+<body>
+    <h3>Shift Upload</h3>
+    <p><a href="/uploader/shift/upload/">Manual Upload</a></p>
+    <p><a href="/uploader/shift/auto/">Test Auto-Upload</a></p>
+
+    <!-- View of responses about the file-->
+    {% if responses %}
+        <hr>    
+        <p>
+            <ul>
+            {% for response in responses %}
+            <li>{{ response }}</li>
+            {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
+    
+    <!-- View of file warnings -->    
+    {% if warnings %}
+        <hr>    
+        File Warnings:
+        <p>
+            <ul>
+            {% for warning in warnings %}
+            <li>{{ warning }}</li>
+            {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
+</body>
+</html>
