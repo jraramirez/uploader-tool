@@ -14,28 +14,6 @@ import os
 
 class UploadLogic:
 
-    # Read the metadata of the file
-    def readFileMetadata(inputFile):
-        wb = load_workbook(inputFile)
-        contents = []
-
-        sheetNames = wb.get_sheet_names()       # Sheet Names
-        fileName = inputFile.name               # File Name
-        fileType = inputFile.content_type       # File Type
-        colNames = []                           # Column Names and nCols
-        nCols = 0
-        colNamesLength = 0
-        # TODO: Assumes that the first sheet is read
-        ws = wb[sheetNames[0]]
-        for row in ws.rows:
-            for cell in row:
-                colNames.append(cell.value)
-                nCols = nCols + 1
-            break
-
-        contents = [sheetNames, colNames, fileName, fileType, nCols]
-        return contents
-
     # Get the uploader metadata from database
     def getUploaderMetadata(self, uploader_name):
         valid = True
@@ -245,11 +223,13 @@ class UploadLogic:
         uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
 
         # File type validation
+        # TODO: FIX
         # if(not fileType == uploaderMetadata[5]):
         #     valid = False
         #     errors.append("Invalid file type: " + "Expected: '" + str(uploaderMetadata[5]) + "'. Found: " + str(fileType) + "'")
 
         # Sheet name validation
+        # TODO: Find sheet for multiple sheets
         if(not str(sheetNames[0]) == uploaderMetadata[6]):
             valid = False
             errors.append("Invalid sheet name: " + "Expected: '" + str(uploaderMetadata[6]) + "'. Found: " + str(sheetNames[0]) + "'")
@@ -281,7 +261,6 @@ class UploadLogic:
             
             # Format validation
             # TODO: If needed
-            # formats = []
 
         returned.append(None)
         returned.append(valid)

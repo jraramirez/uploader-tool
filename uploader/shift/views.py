@@ -7,7 +7,6 @@ import openpyxl
 
 from manager.uploader import UploadLogic
 
-
 class UploadFileForm(forms.Form):
     file = forms.FileField()
 
