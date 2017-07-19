@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import sys
+import subprocess
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "uploader.settings")

@@ -1,0 +1,37 @@
+from django.db import models
+
+# Create your models here.
+
+class shift_temp_table(models.Model):
+    PERIOD = models.CharField(max_length=255, default = None, blank=True, null=True)
+    EMPLOYEE_NUMBER = models.CharField(max_length=255, default = None, null=True)
+    EMPLOYEE_NAME = models.CharField(max_length=255, default = None, null=True)
+    SUPPLEMENTAL_PAY_TYPE = models.CharField(max_length=255, default = None, blank=True, null=True)
+    CLAIM_MONTH = models.CharField(max_length=255, default = None, blank=True, null=True)
+    CLAIM_DATE = models.CharField(max_length=255, default = None, blank=True, null=True)
+    REGULAR_HOURS = models.CharField(max_length=255, default = None, blank=True, null=True)
+    OT_TIME_IN = models.CharField(max_length=255, default = None, blank=True, null=True)
+    OT_TIME_OUT = models.CharField(max_length=255, default = None, blank=True, null=True)
+    TOTAL_OT_HOURS = models.CharField(max_length=255, default = None, blank=True, null=True)
+    OVERTIME_TIME_AMT_PAY = models.CharField(max_length=255, default = None, blank=True, null=True)
+    STANDBY_HOURS = models.CharField(max_length=255, default = None, blank=True, null=True)
+    STNDBY_AMT = models.CharField(max_length=255, default = None, blank=True, null=True)
+    SHIFT_HOURS = models.CharField(max_length=255, default = None, blank=True, null=True)
+    SHIFT_AMT = models.CharField(max_length=255, default = None, blank=True, null=True)
+    SHIFT_AMT = models.CharField(max_length=255, default = None, blank=True, null=True)
+    TOTAL_PAYOUT_PHP = models.CharField(max_length=255, default = None, blank=True, null=True)
+    TOTAL_PAYOUT_USD = models.CharField(max_length=255, default = None, blank=True, null=True)
+    TOTAL_PAYOUT_PERCENT = models.DecimalField(max_digits=10, decimal_places=5, blank=True, null=True)
+    COMMENTS = models.CharField(max_length=255, default = None, blank=True, null=True)
+    PRJ_CUSTOMER = models.CharField(max_length=255, default = None, blank=True, null=True)
+    PRJ_CUSTOMER2 = models.CharField(max_length=255, default = None, blank=True, null=True)
+    PROJECT = models.CharField(max_length=255, default = None, blank=True, null=True)
+    PROJECT2 = models.CharField(max_length=255, default = None, blank=True, null=True)
+    WBS = models.CharField(max_length=255, default = None, blank=True, null=True)
+    WBS_DESCRIPTION = models.CharField(max_length=255, default = None, blank=True, null=True)
+    DCL_FINAL = models.CharField(max_length=255, default = None, blank=True, null=True)
+    LOCATION_CODE = models.CharField(max_length=255, default = None, blank=True, null=True)
+    MANAGER_ID = models.CharField(max_length=255, default = None, blank=True, null=True)
+    MANAGER_NAME = models.CharField(max_length=255, default = None, blank=True, null=True)
+    MODIFIED = models.CharField(max_length=255, default = None, blank=True, null=True)
+
