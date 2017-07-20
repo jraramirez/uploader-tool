@@ -7,6 +7,7 @@ import openpyxl
 
 from manager.uploader import UploadLogic
 from manager.insert import InsertLogic
+from manager.email import EmailLogic
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
@@ -14,7 +15,7 @@ class UploadFileForm(forms.Form):
 def index(request):
     return render(
         request,
-        'shift/index.html',
+        'file_loader/index.html',
     )
 
 # Auto-Upload View
@@ -84,6 +85,10 @@ def auto_upload(request, uploader_name):
         ers = returned[2]
         for e in ers:
             errors.append(e)
+        if(valid):
+            responses.append("File is valid.")
+        else:
+            responses.append("File is not valid.")
 
     # Insert after validations
     if(valid):
@@ -94,10 +99,27 @@ def auto_upload(request, uploader_name):
             errors.append(e)
         responses = returned[3]
         warnings = returned[4]
+    
+    print(len(responses))
+    # Email
+    # TODO: Get sender and recipient from metadata table
+    elogic = EmailLogic
+    sender = "pg_bizopssupport@hpe.com"
+    recipient = "joe-ramir.agn.ramirez@hpe.com"
+    elogic.sendEmailNotification(
+        elogic,
+        sender,
+        recipient,
+        valid,
+        responses,
+        errors,
+        warnings,
+        uploader_name
+    )
 
     return render(
         request,
-        'shift/upload.html',
+        'file_loader/upload.html',
         {
             'form': form,
             'valid': valid,
