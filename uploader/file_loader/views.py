@@ -24,6 +24,7 @@ def auto_upload(request, uploader_name):
     errors = []
     ers = []
     warnings = []
+    # TODO: use dictionary instead of lists
     returned = []
     responses = []
     valid = True
@@ -90,7 +91,7 @@ def auto_upload(request, uploader_name):
         else:
             responses.append("File is not valid.")
 
-    # Insert after validations
+    # # Insert after validations
     if(valid):
         returned = ilogic.properInsert(ilogic, inputFile, uploader_name)
         valid = returned[1]
@@ -100,22 +101,28 @@ def auto_upload(request, uploader_name):
         responses = returned[3]
         warnings = returned[4]
     
-    print(len(responses))
-    # Email
+    # Move file after processing
+    returned = logic.moveFile(logic, valid, uploaderMetadata)
+    valid = returned[1]
+    ers = returned[2]
+    for e in ers:
+        errors.append(e)
+
+    # Email all notifications
     # TODO: Get sender and recipient from metadata table
-    elogic = EmailLogic
-    sender = "pg_bizopssupport@hpe.com"
-    recipient = "joe-ramir.agn.ramirez@hpe.com"
-    elogic.sendEmailNotification(
-        elogic,
-        sender,
-        recipient,
-        valid,
-        responses,
-        errors,
-        warnings,
-        uploader_name
-    )
+    # elogic = EmailLogic
+    # sender = "pg_bizopssupport@hpe.com"
+    # recipient = "joe-ramir.agn.ramirez@hpe.com"
+    # elogic.sendEmailNotification(
+    #     elogic,
+    #     sender,
+    #     recipient,
+    #     valid,
+    #     responses,
+    #     errors,
+    #     warnings,
+    #     uploader_name
+    # )
 
     return render(
         request,

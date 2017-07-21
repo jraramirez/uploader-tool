@@ -22,7 +22,7 @@ INSERT INTO [dbo].[manager_mtdta_uploader]
            (1
 	      ,'shift'
            ,'File upload of monthly shift'
-           ,'\pg_bizops\FILE_UPLOADER\SHIFT\New'
+           ,'\pg_bizops\FILE_UPLOADER\SHIFT'
            ,'a4pgbizopsdev.svcs.entsvcs.net'
            ,'2017_03_EOT_RAW.xlsx'
            ,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
