@@ -32,7 +32,7 @@ class InsertLogic:
             # Specific to shift: use target table shift_temp_table
             shift_temp_table.objects.all().delete()
             with transaction.atomic():
-                wb = load_workbook(inputFile)
+                wb = load_workbook(inputFile, read_only=False)
                 sheetNames = wb.get_sheet_names()
                 ws = wb[sheetNames[0]]
                 
@@ -69,7 +69,7 @@ class InsertLogic:
                             )
                             t.save()
                         i = i + 1
-                        
+
             # Blank values per required column validation
             for metaCol in metadataColumns:
                 required.append(metaCol[5])
@@ -122,6 +122,7 @@ class InsertLogic:
 
         else:
             valid = False
+            responses.append("Uploader name '"+ uploader_name +"' is invalid.")
 
         if(len(warnings) > 0):
             responses.append("File upload successful with warnings")

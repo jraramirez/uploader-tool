@@ -6,6 +6,9 @@ from manager.spreadsheet import SpreadSheetLogic
 
 from openpyxl import load_workbook
 from django.db import transaction
+from shutil import copyfile
+import contextlib
+import datetime
 import ast
 import os
 
@@ -172,7 +175,7 @@ class UploadLogic:
         uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
         
         # Check if folder is valid
-        folderPath = "\\\%s%s" % (uploaderMetadata[11], uploaderMetadata[3])
+        folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
         if(os.path.exists(folderPath)):
             files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
             if(len(files) > 1):
@@ -190,7 +193,7 @@ class UploadLogic:
     # Get the file from the source path
     def getInputFile(self, uploader_name):
         uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
-        folderPath = "\\\%s%s" % (uploaderMetadata[11], uploaderMetadata[3])
+        folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
         files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
         fullPath = folderPath + "\\" + files[0]
         f = open(fullPath, 'rb')
@@ -201,21 +204,23 @@ class UploadLogic:
         valid = True    
         errors = []
         returned = []
-        
-        wb = load_workbook(inputFile)
 
+        wb = load_workbook(inputFile, read_only=True)
+        # with load_workbook(inputFile) as wb:
         sheetNames = wb.get_sheet_names()       # Sheet Names
         fileName = inputFile.name               # File Name
+        
         # fileType = inputFile.content_type       # File Type
         colNames = []                           # Column Names and nCols
         nCols = 0
         ws = wb[sheetNames[0]]
+        # with wb[sheetNames[0]] as ws:
         for row in ws.rows:
             for cell in row:
                 colNames.append(cell.value)
                 nCols = nCols + 1
             break
-        
+
         # Validate uploader metadata
         uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
 
@@ -258,6 +263,36 @@ class UploadLogic:
             
             # Format validation
             # TODO: If needed
+
+        returned.append(None)
+        returned.append(valid)
+        returned.append(errors)
+        return returned
+
+    # Move file 
+    def moveFile(self, valid, uploaderMetadata):
+        returned = []
+        errors = []
+        canMove = True
+
+        # Determine if the destination directory is Archive or Error
+        if(valid):
+            destinationPath = "\\\%s%s\\Archive" % (uploaderMetadata[11], uploaderMetadata[3])
+        else:
+            if(not uploaderMetadata):
+                errors.append("Cannot move file to Error folder due to invalid source path.")
+                canMove = False
+            else:
+                destinationPath = "\\\%s%s\\Error" % (uploaderMetadata[11], uploaderMetadata[3])
+        if(canMove):
+            folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
+            files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
+            destinationPath = destinationPath + "\\" + datetime.datetime.now().strftime("%Y%m%d%H%M%S - ") + files[0]
+            sourcePath = folderPath + "\\" + files[0]
+            copyfile(sourcePath, destinationPath)
+            # os.remove(sourcePath)
+            with contextlib.suppress(OSError):
+                os.unlink(sourcePath)
 
         returned.append(None)
         returned.append(valid)
