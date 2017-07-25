@@ -4,6 +4,8 @@ from manager.models import MTDTA_UPLOADER_COLS
 
 from manager.spreadsheet import SpreadSheetLogic
 
+from django.apps import apps
+
 from openpyxl import load_workbook
 from django.db import transaction
 from shutil import copyfile
@@ -167,12 +169,10 @@ class UploadLogic:
         return labels
 
     #  Validate folder and file existence
-    def validateFile(self, uploader_name):
+    def validateFile(self, uploaderMetadata):
         valid = True    
         errors = []
         returned = []
-
-        uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
         
         # Check if folder is valid
         folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
@@ -191,8 +191,7 @@ class UploadLogic:
         return returned
 
     # Get the file from the source path
-    def getInputFile(self, uploader_name):
-        uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
+    def getInputFile(self, uploaderMetadata):
         folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
         files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
         fullPath = folderPath + "\\" + files[0]
@@ -200,7 +199,7 @@ class UploadLogic:
         return f
 
     #  Validate the metadata of the file
-    def validateFileMetadata(self, inputFile, uploader_name):
+    def validateFileMetadata(self, inputFile, uploaderMetadata, uploaderMetadataColumns):
         valid = True    
         errors = []
         returned = []
@@ -222,7 +221,6 @@ class UploadLogic:
             break
 
         # Validate uploader metadata
-        uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
 
         # File type validation
         # TODO: FIX
@@ -235,28 +233,34 @@ class UploadLogic:
         if(not str(sheetNames[0]) == uploaderMetadata[6]):
             valid = False
             errors.append("Invalid sheet name: " + "Expected: '" + str(uploaderMetadata[6]) + "'. Found: " + str(sheetNames[0]) + "'")
-          
+
+        # TODO: Remove underscores of the target table name
+        try: 
+            targetTable = apps.get_model('file_loader', uploaderMetadata[8])
+        except(LookupError):
+            valid = False
+            errors.append("Invalid target table: " + "Found: '" + str(uploaderMetadata[8]) + "'.")
+
         # Validate File Metadata Columns
-        metadataColumns = self.getUploaderMetadataColumns(self, uploader_name)[0]
 
         # Number of columns validation
-        if(not len(metadataColumns) == nCols):
+        if(not len(uploaderMetadataColumns) == nCols):
             valid = False
-            errors.append("Invalid number of columns: " + "Expected: '" + str(len(metadataColumns)) + "'. Found: '" + str(nCols) + "'." + "")
+            errors.append("Invalid number of columns: " + "Expected: '" + str(len(uploaderMetadataColumns)) + "'. Found: '" + str(nCols) + "'." + "")
             metaColNames = []
-            for metaCol in metadataColumns:
+            for metaCol in uploaderMetadataColumns:
                 metaColNames.append(metaCol[2])
             for fileCol in colNames:
                 if(fileCol not in metaColNames):
                     errors.append("Column not in metadata: '" + str(fileCol) + "'")
-            for metaCol, fileCol in zip(metadataColumns, colNames):
+            for metaCol, fileCol in zip(uploaderMetadataColumns, colNames):
                 if(not metaCol[2] == fileCol):
                     errors.append("Possible missing column: '" + metaCol[2] + "'.")
                     break
         
         else:
             # Column names validation
-            for metaCol, fileCol in zip(metadataColumns, colNames):
+            for metaCol, fileCol in zip(uploaderMetadataColumns, colNames):
                 if(not metaCol[2] == fileCol):
                     valid = False
                     errors.append("Possible column name mismatch or column is missing:" + " Expected: '" + metaCol[2] + "'. Found: '" + fileCol + "'")

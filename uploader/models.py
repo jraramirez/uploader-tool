@@ -12397,10 +12397,3 @@ class ZPgrates(models.Model):
 
 
 class ZProjecttypes(models.Model):
-    project_type = models.CharField(db_column='Project Type', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    direct_billable_field = models.BooleanField(db_column='Direct Billable?')  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-    simplename = models.CharField(db_column='SimpleName', max_length=255, blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'z ProjectTypes'

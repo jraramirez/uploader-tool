@@ -30,6 +30,7 @@ def auto_upload(request, uploader_name):
     valid = True
 
     uploaderMetadata = []
+    uploaderMetadataRaw = []
     uploaderMetadataParameters = []
     uploaderMetadataColumns = []
 
@@ -41,14 +42,14 @@ def auto_upload(request, uploader_name):
     logic = UploadLogic
     ilogic = InsertLogic
     returned = logic.getUploaderMetadata(logic, uploader_name)
-    uploaderMetadata = returned[0]
+    uploaderMetadataRaw = returned[0]
     valid = returned[1]
     ers = returned[2]
     for e in ers:
         errors.append(e)
     uploaderMetadataLabels = logic.getUploaderMetadataLabels(logic)
-    if(uploaderMetadata):
-        uploaderMetadata = zip(uploaderMetadataLabels, uploaderMetadata)
+    if(uploaderMetadataRaw):
+        uploaderMetadata = zip(uploaderMetadataLabels, uploaderMetadataRaw)
 
     # Get uploader metadata parameters from database
     if(valid):
@@ -72,7 +73,7 @@ def auto_upload(request, uploader_name):
 
     # Validate folder and file existence
     if(valid):
-        returned = logic.validateFile(logic, uploader_name)
+        returned = logic.validateFile(logic, uploaderMetadataRaw)
         valid = returned[1]
         ers = returned[2]
         for e in ers:
@@ -80,8 +81,8 @@ def auto_upload(request, uploader_name):
     
     # Validate file metadata
     if(valid):
-        inputFile = logic.getInputFile(logic, uploader_name)
-        returned = logic.validateFileMetadata(logic, inputFile, uploader_name)
+        inputFile = logic.getInputFile(logic, uploaderMetadataRaw)
+        returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
         valid = returned[1]
         ers = returned[2]
         for e in ers:
@@ -93,7 +94,7 @@ def auto_upload(request, uploader_name):
 
     # # Insert after validations
     if(valid):
-        returned = ilogic.properInsert(ilogic, inputFile, uploader_name)
+        returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
         valid = returned[1]
         ers = returned[2]
         for e in ers:
@@ -102,11 +103,11 @@ def auto_upload(request, uploader_name):
         warnings = returned[4]
     
     # Move file after processing
-    returned = logic.moveFile(logic, valid, uploaderMetadata)
-    valid = returned[1]
-    ers = returned[2]
-    for e in ers:
-        errors.append(e)
+    # returned = logic.moveFile(logic, valid, uploaderMetadataRaw)
+    # valid = returned[1]
+    # ers = returned[2]
+    # for e in ers:
+    #     errors.append(e)
 
     # Email all notifications
     # TODO: Get sender and recipient from metadata table

@@ -9,57 +9,6 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-
-class CrossChargeData(models.Model):
-    fiscal_year_period = models.CharField(db_column='Fiscal year/period', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    data_classification = models.CharField(db_column='Data Classification', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    labor_source = models.CharField(db_column='Labor Source', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    posting_date = models.DateTimeField(db_column='Posting Date', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    employee_name = models.CharField(db_column='Employee Name', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    employee_id = models.FloatField(db_column='Employee ID', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    e_mail_address = models.CharField(db_column='E-Mail Address', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    activity_type = models.CharField(db_column='Activity Type', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    hp_location_code = models.CharField(db_column='HP Location Code', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    master_cost_center = models.CharField(db_column='Master Cost Center', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    wbs_resp_cost_center = models.CharField(db_column='WBS Resp Cost Center', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    employee_region = models.CharField(db_column='Employee Region', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    employee_country = models.CharField(db_column='Employee Country', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    credit_tower = models.CharField(db_column='Credit Tower', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    l3_mru_reference_description = models.CharField(db_column='L3 MRU Reference Description', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    tower_name = models.CharField(db_column='Tower Name', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    wbs_tower_name = models.CharField(db_column='WBS Tower Name', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    wbs_service_line = models.CharField(db_column='WBS Service Line', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    wbs_tower = models.CharField(db_column='WBS Tower', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    user_code_2_wbs_lookup_from_pg_structures = models.CharField(db_column='User Code 2 WBS Lookup from PG Structures', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    wbs = models.CharField(db_column='WBS', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    wbs_description = models.CharField(db_column='WBS Description', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    attribute = models.CharField(db_column='Attribute', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    wbs_lookup = models.CharField(db_column='WBS Lookup', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    project_title_from_portfolio_field = models.CharField(db_column='Project Title (from Portfolio)', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-    project_manager_email_from_portfolio_field = models.CharField(db_column='Project Manager Email (from Portfolio)', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-    start_date_from_portfolio_field = models.FloatField(db_column='Start Date (from Portfolio)', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-    end_date_from_portfolio_field = models.FloatField(db_column='End Date (from Portfolio)', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-    billing_classification_from_portfolio_field = models.CharField(db_column='Billing Classification (from Portfolio)', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-    short_text = models.CharField(db_column='Short Text', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    activity_date = models.DateTimeField(db_column='Activity Date', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    supervisor_id = models.FloatField(db_column='Supervisor ID', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    supervisor = models.CharField(db_column='Supervisor', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    supervisor_e_mail_address = models.CharField(db_column='Supervisor E-Mail Address', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    prj_customer = models.CharField(db_column='PRJ Customer', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    cost_element = models.FloatField(db_column='Cost Element', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    currency_code_local = models.CharField(db_column='Currency Code Local', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    rate_per_hour_in_local_currency_field = models.FloatField(db_column='Rate per Hour (in Local Currency)', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-    activity_hours = models.FloatField(db_column='Activity Hours', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    total_cost_in_local_currency_field = models.FloatField(db_column='Total Cost (in Local Currency)', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-    rate_per_hour_in_usd_field = models.FloatField(db_column='Rate per Hour (in USD)', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-    activity_hours1 = models.FloatField(db_column='Activity Hours1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
-    total_cost_in_usd_field = models.FloatField(db_column='Total Cost (in USD)', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
-
-    class Meta:
-        managed = False
-        db_table = 'Cross-Charge Data'
-
-
 class ActualShiftReversals(models.Model):
     date_filed = models.DateField(db_column='DATE_FILED', blank=True, null=True)  # Field name made lowercase.
     claim_month = models.DateField(db_column='CLAIM_MONTH', blank=True, null=True)  # Field name made lowercase.
@@ -9096,7 +9045,6 @@ class TmpTestEdwAbs(models.Model):
 
 
 class TmpTransitionBw(models.Model):
-    id_column = models.IntegerField(db_column='id', primary_key=True)
     service_month = models.CharField(max_length=255, blank=True, null=True)
     manager_email = models.CharField(max_length=255, blank=True, null=True)
     employee_id = models.CharField(max_length=255, blank=True, null=True)
@@ -9346,25 +9294,25 @@ class TempcrosschargeNew(models.Model):
 
 
 class Tempfin005Raw(models.Model):
-    id_column = models.IntegerField(db_column='id', primary_key=True)
-    period = models.CharField(db_column='PERIOD', max_length=255)  # Field name made lowercase.
+    period = models.DateTimeField(db_column='PERIOD')  # Field name made lowercase.
     employee_number = models.CharField(db_column='EMPLOYEE_NUMBER', max_length=255, blank=True, null=True)  # Field name made lowercase.
     employee_name = models.CharField(db_column='EMPLOYEE_NAME', max_length=255, blank=True, null=True)  # Field name made lowercase.
     supplemental_pay_type = models.CharField(db_column='SUPPLEMENTAL_PAY_TYPE', max_length=255, blank=True, null=True)  # Field name made lowercase.
     claim_month = models.CharField(db_column='CLAIM_MONTH', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    claim_date = models.CharField(db_column='CLAIM_DATE', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    claim_date = models.DateTimeField(db_column='CLAIM_DATE', blank=True, null=True)  # Field name made lowercase.
+    is_late_filing = models.CharField(db_column='IS_LATE_FILING', max_length=255, blank=True, null=True)  # Field name made lowercase.
     regular_hours = models.CharField(db_column='REGULAR_HOURS', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    ot_time_in = models.CharField(db_column='OT_TIME_IN', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    ot_time_out = models.CharField(db_column='OT_TIME_OUT', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    ot_time_in = models.DateTimeField(db_column='OT_TIME_IN', blank=True, null=True)  # Field name made lowercase.
+    ot_time_out = models.DateTimeField(db_column='OT_TIME_OUT', blank=True, null=True)  # Field name made lowercase.
     total_ot_hours = models.CharField(db_column='TOTAL_OT_HOURS', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    overtime_time_amt_pay = models.CharField(db_column='OVERTIME_TIME_AMT_PAY', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    standby_hours = models.CharField(db_column='STANDBY_HOURS', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    stndby_amt = models.CharField(db_column='STNDBY_AMT', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    shift_hours = models.CharField(db_column='SHIFT_HOURS', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    shift_amt = models.CharField(db_column='SHIFT_AMT', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    total_payout_php = models.CharField(db_column='TOTAL_PAYOUT_PHP', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    total_payout_usd = models.CharField(db_column='TOTAL_PAYOUT_USD', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    total_payout_percent = models.CharField(db_column='TOTAL_PAYOUT_PERCENT', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    overtime_time_amt_pay = models.DecimalField(db_column='OVERTIME_TIME_AMT_PAY', max_digits=5, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
+    standby_hours = models.DecimalField(db_column='STANDBY_HOURS', max_digits=22, decimal_places=10, blank=True, null=True)  # Field name made lowercase.
+    stndby_amt = models.DecimalField(db_column='STNDBY_AMT', max_digits=22, decimal_places=10, blank=True, null=True)  # Field name made lowercase.
+    shift_hours = models.DecimalField(db_column='SHIFT_HOURS', max_digits=22, decimal_places=10, blank=True, null=True)  # Field name made lowercase.
+    shift_amt = models.DecimalField(db_column='SHIFT_AMT', max_digits=22, decimal_places=10, blank=True, null=True)  # Field name made lowercase.
+    total_payout_php = models.DecimalField(db_column='TOTAL_PAYOUT_PHP', max_digits=22, decimal_places=10, blank=True, null=True)  # Field name made lowercase.
+    total_payout_usd = models.DecimalField(db_column='TOTAL_PAYOUT_USD', max_digits=22, decimal_places=10, blank=True, null=True)  # Field name made lowercase.
+    total_payout_percent = models.DecimalField(db_column='TOTAL_PAYOUT_PERCENT', max_digits=10, decimal_places=5, blank=True, null=True)  # Field name made lowercase.
     comments = models.CharField(db_column='COMMENTS', max_length=255, blank=True, null=True)  # Field name made lowercase.
     prj_customer = models.CharField(db_column='PRJ_CUSTOMER', max_length=255, blank=True, null=True)  # Field name made lowercase.
     prj_customer2 = models.CharField(db_column='PRJ_CUSTOMER2', max_length=255, blank=True, null=True)  # Field name made lowercase.
