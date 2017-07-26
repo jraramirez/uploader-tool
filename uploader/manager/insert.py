@@ -9,6 +9,7 @@ from manager.uploader import UploadLogic
 
 from django.apps import apps
 
+import datetime
 from openpyxl import load_workbook
 from django.db import transaction
 import ast
@@ -36,41 +37,43 @@ class InsertLogic:
         targetTable = apps.get_model('file_loader', uploaderMetadata[8])
 
         print("Insert to database")
+        print(datetime.datetime.time(datetime.datetime.now()))
         if(uploaderMetadata):
-            targetTable.objects.all().delete()
-            with transaction.atomic():
-                wb = load_workbook(inputFile, read_only=False)
-                sheetNames = wb.get_sheet_names()
-                ws = wb[sheetNames[0]]
-                
-                ulogic = UploadLogic
-                nCols = len(uploaderMetadataColumns)
+            wb = load_workbook(inputFile, read_only=True)
+            sheetNames = wb.get_sheet_names()
+            ws = wb[sheetNames[0]]
+            
+            ulogic = UploadLogic
+            nCols = len(uploaderMetadataColumns)
 
-                i = 0
-                all = []
-                for row in ws.iter_rows():
-                    r = []
-                    j = 0
-                    for cell in row:
-                        if(cell.value != None):
-                            r.append(str(cell.value))
-                        else:
-                            r.append(None)
-                    for j in range(len(row), nCols):
+            i = 0
+            all = []
+            for row in ws.iter_rows():
+                r = []
+                j = 0
+                for cell in row:
+                    if(cell.value != None):
+                        r.append(str(cell.value))
+                    else:
                         r.append(None)
-                    if(len(r) > 0):
-                        if(i > startRow):
-                            r.insert(0,i)
-                            all.append(r)
-                            t = targetTable(*r)
-                            t.save()
-                            print(str(r))
-                    i = i + 1
+                for j in range(len(row), nCols):
+                    r.append(None)
+                if(len(r) > 0):
+                    if(i > startRow):
+                        r.insert(0,i)
+                        all.append(r)
+                i = i + 1
 
+            with transaction.atomic():
+                targetTable.objects.all().delete()
+                for r in all:
+                    t = targetTable(*r)
+                    t.save()
             # TODO: Close file properly after insert
 
             # Blank values per required column validation
-            print("Data type validation")
+            print("Blank values validation")
+            print(datetime.datetime.time(datetime.datetime.now()))
             for metaCol in uploaderMetadataColumns:
                 required.append(metaCol[5])
                 names.append(metaCol[2])
@@ -81,7 +84,6 @@ class InsertLogic:
             
             columnNumber = 0
             for f in targetTable._meta.get_fields():
-                print(f.name)
                 values = []
                 if(required[columnNumber] == 'Y'):
                     hasBlank = False
@@ -97,33 +99,32 @@ class InsertLogic:
             # # Data type validation
             columnNumber = 0
             print("Data type validation")
+            print(datetime.datetime.time(datetime.datetime.now()))
             for f in targetTable._meta.get_fields():
-                print(f.name)
                 if(not f.name == 'id'):
                     isValidType = True
-                    if(str(types[columnNumber]) == 'str'):
+                    values = targetTable.objects.values_list(f.name, flat=True)
+                    for value in values:
+                        typeFound = str(type(value).__name__)
+                        if(not (str(typeFound) == str(types[columnNumber])) and not (str(typeFound) == 'NoneType')):
+                            isValidType = False
+                            break
+                    if(typeFound == 'datetime' and types[columnNumber] == 'time'):
                         isValidType = True
-                    else:
-                        values = targetTable.objects.values_list(f.name, flat=True)
-                        for value in values:
-                            typeFound = str(type(value).__name__)
-                            if(not (str(typeFound) == str(types[columnNumber])) and not (str(typeFound) == 'NoneType')):
-                                isValidType = False
-                                break
-                        if(typeFound == 'datetime' and types[columnNumber] == 'time'):
-                            isValidType = True
-                        if(typeFound == 'time' and types[columnNumber] == 'datetime'):
-                            isValidType = True
-                        if(typeFound == 'int' and types[columnNumber] == 'float'):
-                            isValidType = True
-                        if(typeFound == 'float' and types[columnNumber] == 'int'):
-                            isValidType = True
-                        if(typeFound == 'Decimal' and types[columnNumber] == 'int'):
-                            isValidType = True
-                        if(typeFound == 'Decimal' and types[columnNumber] == 'float'):
-                            isValidType = True
-                        if(typeFound == 'float' and types[columnNumber] == 'Decimal'):
-                            isValidType = True
+                    if(typeFound == 'time' and types[columnNumber] == 'datetime'):
+                        isValidType = True
+                    if(typeFound == 'int' and types[columnNumber] == 'float'):
+                        isValidType = True
+                    if(typeFound == 'float' and types[columnNumber] == 'int'):
+                        isValidType = True
+                    if(typeFound == 'Decimal' and types[columnNumber] == 'int'):
+                        isValidType = True
+                    if(typeFound == 'Decimal' and types[columnNumber] == 'float'):
+                        isValidType = True
+                    if(typeFound == 'float' and types[columnNumber] == 'Decimal'):
+                        isValidType = True
+                    if(typeFound == 'str'):
+                        isValidType = True
                     if(not isValidType):
                         warnings.append("Column '" + names[columnNumber] + "' does not follow expected data type. Expected: '" + types[columnNumber] + "'. Found: '" + typeFound + "'")
                     columnNumber = columnNumber + 1
@@ -136,6 +137,7 @@ class InsertLogic:
         else:
             responses.append("File upload successful.")
         
+        print(datetime.datetime.time(datetime.datetime.now()))
         returned.append(None)
         returned.append(valid)
         returned.append(errors)

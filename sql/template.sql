@@ -5,6 +5,8 @@ GO
 -- truncate table [dbo].[manager_mtdta_uploader_cols]
 -- truncate table [dbo].[manager_mtdta_uploader]
 
+-- TODO: Parameterize the values into variables
+
 INSERT INTO [dbo].[manager_mtdta_uploader]
            ([name]
            ,[description]
@@ -21,7 +23,7 @@ INSERT INTO [dbo].[manager_mtdta_uploader]
            ('transition-countries'
            ,'File upload of transition countries'
            ,'\pg_bizops\FILE_UPLOADER\TRANSITION COUNTRIES'
-           ,'a4pgbizopsdev.svcs.entsvcs.net'
+           ,'16.179.110.132'
            ,'20170704 BW Monthly Hours Data.xlsb'
            ,'test'
            ,'BW Hours Data'

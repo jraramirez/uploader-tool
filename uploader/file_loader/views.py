@@ -103,27 +103,27 @@ def auto_upload(request, uploader_name):
         warnings = returned[4]
     
     # Move file after processing
-    # returned = logic.moveFile(logic, valid, uploaderMetadataRaw)
-    # valid = returned[1]
-    # ers = returned[2]
-    # for e in ers:
-    #     errors.append(e)
+    returned = logic.moveFile(logic, valid, uploaderMetadataRaw)
+    valid = returned[1]
+    ers = returned[2]
+    for e in ers:
+        errors.append(e)
 
     # Email all notifications
     # TODO: Get sender and recipient from metadata table
-    # elogic = EmailLogic
-    # sender = "pg_bizopssupport@hpe.com"
-    # recipient = "joe-ramir.agn.ramirez@hpe.com"
-    # elogic.sendEmailNotification(
-    #     elogic,
-    #     sender,
-    #     recipient,
-    #     valid,
-    #     responses,
-    #     errors,
-    #     warnings,
-    #     uploader_name
-    # )
+    elogic = EmailLogic
+    sender = "pg_bizopssupport@hpe.com"
+    recipient = "joe-ramir.agn.ramirez@hpe.com"
+    elogic.sendEmailNotification(
+        elogic,
+        sender,
+        recipient,
+        valid,
+        responses,
+        errors,
+        warnings,
+        uploader_name
+    )
 
     return render(
         request,

@@ -21,7 +21,7 @@ INSERT INTO [dbo].[manager_mtdta_uploader]
            ('transition-countries'
            ,'File upload of transition countries'
            ,'\pg_bizops\FILE_UPLOADER\TRANSITION COUNTRIES'
-           ,'a4pgbizopsdev.svcs.entsvcs.net'
+           ,'16.179.110.132'
            ,'20170704 BW Monthly Hours Data.xlsb'
            ,'test'
            ,'BW Hours Data'
