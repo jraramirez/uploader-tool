@@ -4,6 +4,9 @@ from manager.models import MTDTA_UPLOADER_COLS
 
 from manager.spreadsheet import SpreadSheetLogic
 
+from django.apps import apps
+
+import csv
 from openpyxl import load_workbook
 from django.db import transaction
 from shutil import copyfile
@@ -11,6 +14,7 @@ import contextlib
 import datetime
 import ast
 import os
+import re
 
 class UploadLogic:
 
@@ -50,7 +54,6 @@ class UploadLogic:
 
     # Get the uploader metadata labels from database
     # TODO: Get uploader metadata labels from database
-    # TODO: Parameterize the upload type
     def getUploaderMetadataLabels(self):
         labels = [
             'Uploader ID', 
@@ -68,7 +71,6 @@ class UploadLogic:
         return labels
 
     # Get the uploader metadata parameters from database
-    # TODO: Parameterize the upload type
     def getUploaderMetadataParameters(self, uploader_name):
         valid = True
         returned = []
@@ -101,7 +103,6 @@ class UploadLogic:
 
     # Get the uploader metadata parameter labels from database
     # TODO: Get uploader metadata parameter labels from database
-    # TODO: Parameterize the upload type
     def getUploaderMetadataParameterLabels(self):
         labels = [
             'Uploader ID', 
@@ -150,7 +151,6 @@ class UploadLogic:
 
     # Get the uploader metadata column labels from database
     # TODO: Get uploader metadata column labels from database
-    # TODO: Parameterize the upload type
     def getUploaderMetadataColumnLabels(self):
         labels = [
             'Uploader ID', 
@@ -167,20 +167,22 @@ class UploadLogic:
         return labels
 
     #  Validate folder and file existence
-    def validateFile(self, uploader_name):
+    def validateFile(self, uploaderMetadata):
         valid = True    
         errors = []
         returned = []
-
-        uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
         
         # Check if folder is valid
         folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
         if(os.path.exists(folderPath)):
             files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
-            if(len(files) > 1):
+            if(files):
+                if(len(files) > 1):
+                    valid = False
+                    errors.append("More than one file was found in the source folder.")
+            else:
                 valid = False
-                errors.append("More than one file was found in the source folder.")
+                errors.append("No files were found in the source folder.")            
         else:
             valid = False
             errors.append("Invalid source folder: " + "Expected: '" + folderPath + "'.")
@@ -191,78 +193,106 @@ class UploadLogic:
         return returned
 
     # Get the file from the source path
-    def getInputFile(self, uploader_name):
-        uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
+    def getInputFile(self, uploaderMetadata):
         folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
         files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
         fullPath = folderPath + "\\" + files[0]
-        f = open(fullPath, 'rb')
+        if(uploaderMetadata[5] == '.csv'):
+            f = open(fullPath, 'rt')
+        else:
+            f = open(fullPath, 'rb')
         return f
 
     #  Validate the metadata of the file
-    def validateFileMetadata(self, inputFile, uploader_name):
+    def validateFileMetadata(self, inputFile, uploaderMetadata, uploaderMetadataColumns):
         valid = True    
         errors = []
         returned = []
-
-        wb = load_workbook(inputFile, read_only=True)
-        # with load_workbook(inputFile) as wb:
-        sheetNames = wb.get_sheet_names()       # Sheet Names
-        fileName = inputFile.name               # File Name
+        sheetIndex = 0
+        sheetFound = False
+        readSuccess = False
         
-        # fileType = inputFile.content_type       # File Type
-        colNames = []                           # Column Names and nCols
-        nCols = 0
-        ws = wb[sheetNames[0]]
-        # with wb[sheetNames[0]] as ws:
-        for row in ws.rows:
-            for cell in row:
-                colNames.append(cell.value)
-                nCols = nCols + 1
-            break
-
         # Validate uploader metadata
-        uploaderMetadata = self.getUploaderMetadata(self, uploader_name)[0]
 
+        colNames = []
+        nCols = 0
+        fileName, fileExtension = os.path.splitext(inputFile.name)
         # File type validation
-        # TODO: FIX
-        # if(not fileType == uploaderMetadata[5]):
-        #     valid = False
-        #     errors.append("Invalid file type: " + "Expected: '" + str(uploaderMetadata[5]) + "'. Found: " + str(fileType) + "'")
-
-        # Sheet name validation
-        # TODO: Find sheet for multiple sheets
-        if(not str(sheetNames[0]) == uploaderMetadata[6]):
+        if(not fileExtension.lower() == uploaderMetadata[5].lower()):
             valid = False
-            errors.append("Invalid sheet name: " + "Expected: '" + str(uploaderMetadata[6]) + "'. Found: " + str(sheetNames[0]) + "'")
-          
-        # Validate File Metadata Columns
-        metadataColumns = self.getUploaderMetadataColumns(self, uploader_name)[0]
+            errors.append("Invalid file type: " + "Expected: '" + str(uploaderMetadata[5]) + "'. Found: " + str(fileExtension) + "'")
 
-        # Number of columns validation
-        if(not len(metadataColumns) == nCols):
+        # File name validation
+        if(uploaderMetadata[4].lower() not in fileName.lower()):
             valid = False
-            errors.append("Invalid number of columns: " + "Expected: '" + str(len(metadataColumns)) + "'. Found: '" + str(nCols) + "'." + "")
-            metaColNames = []
-            for metaCol in metadataColumns:
-                metaColNames.append(metaCol[2])
-            for fileCol in colNames:
-                if(fileCol not in metaColNames):
-                    errors.append("Column not in metadata: '" + str(fileCol) + "'")
-            for metaCol, fileCol in zip(metadataColumns, colNames):
-                if(not metaCol[2] == fileCol):
-                    errors.append("Possible missing column: '" + metaCol[2] + "'.")
-                    break
+            errors.append("Invalid file name format: " + "Expected: '" + str(uploaderMetadata[4]) + "'.")
         
+        # Sheet name validation
+        if(fileExtension == '.csv'):
+            ws = csv.reader(inputFile, delimiter=',')
+            for row in ws:
+                for cell in row:
+                    colNames.append(cell)
+                    nCols = nCols + 1
+                break
+            readSuccess = True
         else:
-            # Column names validation
-            for metaCol, fileCol in zip(metadataColumns, colNames):
-                if(not metaCol[2] == fileCol):
-                    valid = False
-                    errors.append("Possible column name mismatch or column is missing:" + " Expected: '" + metaCol[2] + "'. Found: '" + fileCol + "'")
+            wb = load_workbook(inputFile, read_only=True)
+            sheetNames = wb.get_sheet_names()       # Sheet Names
+            for s in sheetNames:
+                if(str(s) == uploaderMetadata[6]):
+                    sheetFound = True
+                    break
+                sheetIndex = sheetIndex + 1
+
+            if(sheetFound):
+                ws = wb[sheetNames[sheetIndex]]
+                # with wb[sheetNames[0]] as ws:
+                for row in ws.rows:
+                    for cell in row:
+                        colNames.append(cell.value)
+                        nCols = nCols + 1
+                    break
+                readSuccess = True
+                
+            else:
+                valid = False
+                errors.append("Invalid sheet name: " + "Expected: '" + str(uploaderMetadata[6]) + "'. Found: " + str(sheetNames[0]) + "'")
+
+        # Validate File Metadata Columns
+        if(readSuccess):
+            # Number of columns validation
+            if(not len(uploaderMetadataColumns) == nCols):
+                valid = False
+                errors.append("Invalid number of columns: " + "Expected: '" + str(len(uploaderMetadataColumns)) + "'. Found: '" + str(nCols) + "'." + "")
+                metaColNames = []
+                for metaCol in uploaderMetadataColumns:
+                    metaColNames.append(metaCol[2])
+                for fileCol in colNames:
+                    if(fileCol not in metaColNames):
+                        errors.append("Column not in metadata: '" + str(fileCol) + "'")
+                for metaCol, fileCol in zip(uploaderMetadataColumns, colNames):
+                    if(not metaCol[2] == fileCol):
+                        errors.append("Possible missing column: '" + metaCol[2] + "'.")
+                        break
             
-            # Format validation
-            # TODO: If needed
+            else:
+                # Column names validation
+                for metaCol, fileCol in zip(uploaderMetadataColumns, colNames):
+                    if(not metaCol[2] == fileCol):
+                        valid = False
+                        errors.append("Possible column name mismatch or column is missing:" + " Expected: '" + metaCol[2] + "'.")
+                
+                # Format validation
+                # TODO: If needed
+
+        # TODO: Remove underscores of the target table name
+        targetTableName = re.sub(r'[\W_]', '', uploaderMetadata[8])
+        try: 
+            targetTable = apps.get_model('file_loader', targetTableName)
+        except(LookupError):
+            valid = False
+            errors.append("Invalid target table: " + "Found: '" + str(uploaderMetadata[8]) + "'.")
 
         returned.append(None)
         returned.append(valid)
@@ -287,12 +317,13 @@ class UploadLogic:
         if(canMove):
             folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
             files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
-            destinationPath = destinationPath + "\\" + datetime.datetime.now().strftime("%Y%m%d%H%M%S - ") + files[0]
-            sourcePath = folderPath + "\\" + files[0]
-            copyfile(sourcePath, destinationPath)
-            # os.remove(sourcePath)
-            with contextlib.suppress(OSError):
-                os.unlink(sourcePath)
+            if(files):
+                destinationPath = destinationPath + "\\" + datetime.datetime.now().strftime("%Y%m%d%H%M%S - ") + files[0]
+                sourcePath = folderPath + "\\" + files[0]
+                copyfile(sourcePath, destinationPath)
+                os.remove(sourcePath)
+                with contextlib.suppress(OSError):
+                    os.unlink(sourcePath)
 
         returned.append(None)
         returned.append(valid)

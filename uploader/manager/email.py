@@ -33,7 +33,7 @@ class EmailLogic:
             warningList = warningList + "\n - " + w
         for r in responses:
             responseList = responseList + "\n - " + r
-        text = "\n[File Loader Bot] [" + uploader_name + " uploader] [" + status + "] - " + responses[0] + \
+        text = responses[0] + \
             "\n\nWarnings: " + \
             warningList + \
             "\n\nErrors: " + \
