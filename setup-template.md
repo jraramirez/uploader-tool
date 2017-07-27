@@ -1,1 +1,1 @@
-## Setting Up Metadata Tables Using Templates
+## Setting Up Metadata Tables Using a Template
