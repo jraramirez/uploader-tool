@@ -94,6 +94,16 @@ DATABASES = {
         'OPTIONS': {
             'driver': 'SQL Server Native Client 11.0',
         },
+    },
+    'ppd': {
+        'NAME': 'PG_PROJECTS_DEV',
+        'ENGINE': 'sql_server.pyodbc',
+        'HOST': '16.179.110.132',
+        'ATOMIC_REQUESTS': True,
+        'AUTOCOMMIT': True,
+        'OPTIONS': {
+            'driver': 'SQL Server Native Client 11.0',
+        },
     }
 }
 

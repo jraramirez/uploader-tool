@@ -4,9 +4,9 @@
 ![Metadata Tables](https://github.hpe.com/TTT/uploader-tool/blob/master/images/metadata-tables.png)
 
 These tables are found in the database with the following names:
-* MTDTA_UPLOADER - Uploaders Metadata Table
-* MTDTA_UPLOADER_PARAMS - Parameters Metadata Table
-* MTDTA_UPLOADER_COLS - Columns Metadata Table
+* ```MTDTA_UPLOADER``` - Uploaders Metadata Table
+* ```MTDTA_UPLOADER_PARAMS``` - Parameters Metadata Table
+* ```MTDTA_UPLOADER_COLS``` - Columns Metadata Table
 
 #### Uploaders Metadata Table
 
@@ -14,11 +14,11 @@ This table has the data that an uploader needs to properly upload a file to a ta
 
 * Name - Name of the uploader
 * Description - Description of the uploader
-* Source path - The path to the directory where the uploader will expect the source file
+* Source path - The path to the directory where the uploader will expect the source file.
 * Server - The server where the file loader bot is deployed and where the source file will be retrieved 
 * File Name - The file name format that the uploader will expect in the name of the source file
 * File Type - The file extension that the uploader will expect in the name of the source file
-* Sheet Name - The sheet name that the uploader will expect in the source file. Leave blank if the input file is a .csv file
+* Sheet Name - The sheet name that the uploader will expect in the source file.
 * Target Schema - The schema where the uploader will expect the target table
 * Target Table - The target table where the uploader will send the source file data
 * Last Update UID - ID of the user that most recently updated the metadata table 
@@ -52,10 +52,16 @@ This table has the data that an uploader needs to properly validate a file by it
 
 ###### Data Type Field
 The data types expected are data types in python. Here are some of the common python data types you may use
-    * int
-    * float
-    * str
-    * datetime
+* ```int```
+* ```float```
+* ```str```
+* ```datetime```
+
+###### Sheet Name Field
+Leave this field blank if the input file is a .csv file
+
+###### Source Path Field
+Make sure that this folder exists under ```\\[server]\pg_bizops```
 
 ###### Is Required Field
 The Is Required field should only have values 'Y' or 'N'

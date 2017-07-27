@@ -1,27 +1,14 @@
 # File Loader Bot
 
-* DEV Version: http://a4pgbizopsdev.svcs.entsvcs.net/uploader
-* PROD Version:
+DEV Version: http://a4pgbizopsdev.svcs.entsvcs.net/uploader
+
+PROD Version:
 
 ### About File Loader Bot
 
 The tool used to upload reports in excel or csv format to databases. This tool is used to standardize all loads of database tables from files across the production environment. It can be leveraged by all existing and future developments which involves file loading mechanism. It will greatly benefit the business as this will speed up development, utilize available infrastructure resource, reduce support costs, and reduce feature upgrade costs.
 
 In order to operate properly, the file loader bot will utilize database tables called metadata tables. These tables, after setting up properly, will direct the bot on how the files are loaded into target tables. The file loader bot will communicate everything it does with the users via email.
-
-### Architecture
-#### Technologies:
-* Python 3.5.x
-* Django 1.11.2 Framework
-
-The implementation will utilize python libraries that can read any type of csv or excel files and can perform file operations. Django framework will handle the application’s server connection configurations.
-
-#### Python and Django Libraries:
-* django-pyodbc and django-pyodbc-azure – for connecting to server databases using ODBC connection
-* django-db-models – for creating/modifying db tables within the application
-* django-db-transactions – for doing sql transactions within the application
-* openpyxl – for spreadsheet file operations
-* os – for file and directory operations
 
 ### Process Flow
 
@@ -38,6 +25,10 @@ https://github.hpe.com/TTT/uploader-tool/blob/master/metadata-tables.md
 ### Setting Up a New Uploader
 
 https://github.hpe.com/TTT/uploader-tool/blob/master/setup-new-uploader.md
+
+### File Loader Bot Usage
+
+https://github.hpe.com/TTT/uploader-tool/blob/master/file-loader-bot-usage.md
 
 ### File Loader Bot Features
 
@@ -75,9 +66,16 @@ https://github.hpe.com/TTT/uploader-tool/blob/master/setup-new-uploader.md
 
 https://github.hpe.com/TTT/uploader-tool/blob/master/deployment.md
 
-### Running in the Server
-1. Run a command line interface in the server
-2. Go to the directory uploader-tool\uploader ```cd uploader-tool\uploader```
-3. Run the command ```python manage.py runserver 0.0.0.0:80```
-4. Access the web client at http://a4pgbizopsdev.svcs.entsvcs.net/uploader
+### Architecture
+#### Technologies:
+* Python 3.5.x
+* Django 1.11.2 Framework
 
+The implementation will utilize python libraries that can read any type of csv or excel files and can perform file operations. Django framework will handle the application’s server connection configurations.
+
+#### Python and Django Libraries:
+* django-pyodbc and django-pyodbc-azure – for connecting to server databases using ODBC connection
+* django-db-models – for creating/modifying db tables within the application
+* django-db-transactions – for doing sql transactions within the application
+* openpyxl – for spreadsheet file operations
+* os – for file and directory operations
