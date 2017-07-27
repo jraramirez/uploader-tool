@@ -28,6 +28,7 @@ def auto_upload(request, uploader_name):
     returned = []
     responses = []
     valid = True
+    inputFile = None
 
     uploaderMetadata = []
     uploaderMetadataRaw = []
@@ -87,10 +88,6 @@ def auto_upload(request, uploader_name):
         ers = returned[2]
         for e in ers:
             errors.append(e)
-        if(valid):
-            responses.append("File is valid.")
-        else:
-            responses.append("File is not valid.")
 
     # # Insert after validations
     if(valid):
@@ -99,15 +96,25 @@ def auto_upload(request, uploader_name):
         ers = returned[2]
         for e in ers:
             errors.append(e)
-        responses = returned[3]
-        warnings = returned[4]
+        warnings = returned[3]
     
+    if(valid and warnings):
+        responses.append("File upload successful with warnings")
+        inputFile.close()
+    elif(valid and not warnings):
+        responses.append("File upload successful.")
+        inputFile.close()
+    else:
+        responses.append("File upload have errors.")
+
     # Move file after processing
-    returned = logic.moveFile(logic, valid, uploaderMetadataRaw)
-    valid = returned[1]
-    ers = returned[2]
-    for e in ers:
-        errors.append(e)
+    if(inputFile):
+        inputFile.close()
+    # returned = logic.moveFile(logic, valid, uploaderMetadataRaw)
+    # valid = returned[1]
+    # ers = returned[2]
+    # for e in ers:
+    #     errors.append(e)
 
     # Email all notifications
     # TODO: Get sender and recipient from metadata table

@@ -10,10 +10,12 @@ from manager.uploader import UploadLogic
 from django.apps import apps
 
 import datetime
+import csv
 from openpyxl import load_workbook
 from django.db import transaction
 import ast
 import os
+import re
 
 class InsertLogic:
 
@@ -34,42 +36,67 @@ class InsertLogic:
         uploaderName = uploaderMetadata[1]
 
         # TODO: Remove underscores of the target table name
-        targetTable = apps.get_model('file_loader', uploaderMetadata[8])
+        targetTableName = re.sub(r'[\W_]', '', uploaderMetadata[8])
+        targetTable = apps.get_model('file_loader', targetTableName)
 
         print("Insert to database")
         print(datetime.datetime.time(datetime.datetime.now()))
         if(uploaderMetadata):
-            wb = load_workbook(inputFile, read_only=True)
-            sheetNames = wb.get_sheet_names()
-            ws = wb[sheetNames[0]]
-            
-            ulogic = UploadLogic
-            nCols = len(uploaderMetadataColumns)
-
-            i = 0
-            all = []
-            for row in ws.iter_rows():
-                r = []
-                j = 0
-                for cell in row:
-                    if(cell.value != None):
-                        r.append(str(cell.value))
-                    else:
+            if(uploaderMetadata[5] == '.csv'):
+                ws = csv.reader(inputFile, delimiter=',')
+                nCols = len(uploaderMetadataColumns)
+                i = 0
+                all = []
+                for row in ws:
+                    r = []
+                    j = 0
+                    for cell in row:
+                        if(cell != None):
+                            r.append(str(cell))
+                        else:
+                            r.append(None)
+                    for j in range(len(row), nCols):
                         r.append(None)
-                for j in range(len(row), nCols):
-                    r.append(None)
-                if(len(r) > 0):
-                    if(i > startRow):
-                        r.insert(0,i)
-                        all.append(r)
-                i = i + 1
+                    if(len(r) > 0):
+                        if(i > startRow):
+                            r.insert(0,i)
+                            all.append(r)
+                    i = i + 1
+
+            else:
+                wb = load_workbook(inputFile, read_only=True)
+                sheetNames = wb.get_sheet_names()
+                sheetIndex = 0
+                for s in sheetNames:
+                    if(str(s) == uploaderMetadata[6]):
+                        break
+                    sheetIndex = sheetIndex + 1
+                ws = wb[sheetNames[sheetIndex]]
+                nCols = len(uploaderMetadataColumns)
+
+                i = 0
+                all = []
+                for row in ws.iter_rows():
+                    r = []
+                    j = 0
+                    for cell in row:
+                        if(cell.value != None):
+                            r.append(str(cell.value))
+                        else:
+                            r.append(None)
+                    for j in range(len(row), nCols):
+                        r.append(None)
+                    if(len(r) > 0):
+                        if(i > startRow):
+                            r.insert(0,i)
+                            all.append(r)
+                    i = i + 1
 
             with transaction.atomic():
                 targetTable.objects.all().delete()
                 for r in all:
                     t = targetTable(*r)
                     t.save()
-            # TODO: Close file properly after insert
 
             # Blank values per required column validation
             print("Blank values validation")
@@ -130,17 +157,9 @@ class InsertLogic:
                     columnNumber = columnNumber + 1
         else:
             valid = False
-            responses.append("Uploader name '"+ uploaderName +"' is invalid.")
-
-        if(len(warnings) > 0):
-            responses.append("File upload successful with warnings")
-        else:
-            responses.append("File upload successful.")
-        
         print(datetime.datetime.time(datetime.datetime.now()))
         returned.append(None)
         returned.append(valid)
         returned.append(errors)
-        returned.append(responses)
         returned.append(warnings)
         return returned

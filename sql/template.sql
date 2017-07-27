@@ -1,11 +1,7 @@
+-- TODO: Use variables to fill up the template easier
+
 USE [PG_BIZOPS_DEV]
 GO
-
--- truncate table [dbo].[manager_mtdta_uploader_params]
--- truncate table [dbo].[manager_mtdta_uploader_cols]
--- truncate table [dbo].[manager_mtdta_uploader]
-
--- TODO: Parameterize the values into variables
 
 INSERT INTO [dbo].[manager_mtdta_uploader]
            ([name]
