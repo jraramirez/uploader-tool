@@ -2,21 +2,25 @@ from manager.models import MTDTA_UPLOADER
 from manager.models import MTDTA_UPLOADER_PARAMS
 from manager.models import MTDTA_UPLOADER_COLS
 
-from file_loader.models import shift_temp_table
+from file_loader.models import *
 
 from manager.spreadsheet import SpreadSheetLogic
 from manager.uploader import UploadLogic
 
+from django.apps import apps
 
+import datetime
+import csv
 from openpyxl import load_workbook
 from django.db import transaction
 import ast
 import os
+import re
 
 class InsertLogic:
 
     # Insert data into database
-    def properInsert(self, inputFile, uploader_name):
+    def properInsert(self, inputFile, uploaderMetadata, uploaderMetadataColumns):
         returned = []
         valid = True
         errors = []
@@ -25,24 +29,53 @@ class InsertLogic:
         required = []
         types = []
         names = []
-        
-        # SHIFT
-        # Upload data from file to the database
-        if(uploader_name == 'shift'):
-            # Specific to shift: use target table shift_temp_table
-            shift_temp_table.objects.all().delete()
-            with transaction.atomic():
-                wb = load_workbook(inputFile, read_only=False)
-                sheetNames = wb.get_sheet_names()
-                ws = wb[sheetNames[0]]
-                
-                ulogic = UploadLogic
-                metadataColumns = ulogic.getUploaderMetadataColumns(self, uploader_name)[0]
-                nCols = len(metadataColumns)
 
-                # Specific to shift: data starts at row 0
-                startRow = 0
+        # TODO: Put these to metadata table
+        startRow = 0
+        
+        uploaderName = uploaderMetadata[1]
+
+        # TODO: Remove underscores of the target table name
+        targetTableName = re.sub(r'[\W_]', '', uploaderMetadata[8])
+        targetTable = apps.get_model('file_loader', targetTableName)
+
+        print("Insert to database")
+        print(datetime.datetime.time(datetime.datetime.now()))
+        if(uploaderMetadata):
+            if(uploaderMetadata[5] == '.csv'):
+                ws = csv.reader(inputFile, delimiter=',')
+                nCols = len(uploaderMetadataColumns)
                 i = 0
+                all = []
+                for row in ws:
+                    r = []
+                    j = 0
+                    for cell in row:
+                        if(cell != None):
+                            r.append(str(cell))
+                        else:
+                            r.append(None)
+                    for j in range(len(row), nCols):
+                        r.append(None)
+                    if(len(r) > 0):
+                        if(i > startRow):
+                            r.insert(0,i)
+                            all.append(r)
+                    i = i + 1
+
+            else:
+                wb = load_workbook(inputFile, read_only=True)
+                sheetNames = wb.get_sheet_names()
+                sheetIndex = 0
+                for s in sheetNames:
+                    if(str(s) == uploaderMetadata[6]):
+                        break
+                    sheetIndex = sheetIndex + 1
+                ws = wb[sheetNames[sheetIndex]]
+                nCols = len(uploaderMetadataColumns)
+
+                i = 0
+                all = []
                 for row in ws.iter_rows():
                     r = []
                     j = 0
@@ -53,49 +86,51 @@ class InsertLogic:
                             r.append(None)
                     for j in range(len(row), nCols):
                         r.append(None)
-                    print(i)
-
-                    # Specific to shift: 30 columns
                     if(len(r) > 0):
                         if(i > startRow):
-                            r.insert(0, i)
-                            t = shift_temp_table(
-                                r[0],r[1],r[2],r[3],r[4],r[5],
-                                r[6],r[7],r[8],r[9],r[10],r[11],
-                                r[12],r[13],r[14],r[15],r[16],
-                                r[17],r[18],r[19],r[20],r[21],
-                                r[22],r[23],r[24],r[25],r[26],
-                                r[27],r[28],r[29],
-                            )
-                            t.save()
-                        i = i + 1
+                            r.insert(0,i)
+                            all.append(r)
+                    i = i + 1
+
+            with transaction.atomic():
+                targetTable.objects.all().delete()
+                for r in all:
+                    t = targetTable(*r)
+                    t.save()
 
             # Blank values per required column validation
-            for metaCol in metadataColumns:
+            print("Blank values validation")
+            print(datetime.datetime.time(datetime.datetime.now()))
+            for metaCol in uploaderMetadataColumns:
                 required.append(metaCol[5])
                 names.append(metaCol[2])
                 types.append(metaCol[4])
+            required.insert(0, 'Y')
+            names.insert(0, 'id')
+            types.insert(0, 'int')
+            
             columnNumber = 0
-            for f in shift_temp_table._meta.get_fields():
-                if(not f.name == 'id'):
-                    values = []
-                    if(required[columnNumber] == 'Y'):
-                        hasBlank = False
-                        values = shift_temp_table.objects.values_list(f.name, flat=True)
-                        for value in values:
-                            if(value == None):
-                                hasBlank = True
-                                break
-                        if(hasBlank and required[columnNumber] == 'Y'):
-                            warnings.append("Column has blank values: '" + names[columnNumber] + "'. This column is required.")
-                    columnNumber = columnNumber + 1
+            for f in targetTable._meta.get_fields():
+                values = []
+                if(required[columnNumber] == 'Y'):
+                    hasBlank = False
+                    values = targetTable.objects.values_list(f.name, flat=True)
+                    for value in values:
+                        if(value == None):
+                            hasBlank = True
+                            break
+                    if(hasBlank and required[columnNumber] == 'Y'):
+                        warnings.append("Column has blank values: '" + names[columnNumber] + "'. This column is required.")
+                columnNumber = columnNumber + 1
 
-            # Data type validation
+            # # Data type validation
             columnNumber = 0
-            for f in shift_temp_table._meta.get_fields():
+            print("Data type validation")
+            print(datetime.datetime.time(datetime.datetime.now()))
+            for f in targetTable._meta.get_fields():
                 if(not f.name == 'id'):
                     isValidType = True
-                    values = shift_temp_table.objects.values_list(f.name, flat=True)
+                    values = targetTable.objects.values_list(f.name, flat=True)
                     for value in values:
                         typeFound = str(type(value).__name__)
                         if(not (str(typeFound) == str(types[columnNumber])) and not (str(typeFound) == 'NoneType')):
@@ -111,27 +146,20 @@ class InsertLogic:
                         isValidType = True
                     if(typeFound == 'Decimal' and types[columnNumber] == 'int'):
                         isValidType = True
+                    if(typeFound == 'Decimal' and types[columnNumber] == 'float'):
+                        isValidType = True
+                    if(typeFound == 'float' and types[columnNumber] == 'Decimal'):
+                        isValidType = True
                     if(typeFound == 'str'):
                         isValidType = True
                     if(not isValidType):
                         warnings.append("Column '" + names[columnNumber] + "' does not follow expected data type. Expected: '" + types[columnNumber] + "'. Found: '" + typeFound + "'")
                     columnNumber = columnNumber + 1
-        
-        # SVR
-        # elif(uploader_name == 'svr'):
-
         else:
             valid = False
-            responses.append("Uploader name '"+ uploader_name +"' is invalid.")
-
-        if(len(warnings) > 0):
-            responses.append("File upload successful with warnings")
-        else:
-            responses.append("File upload successful.")
-        
+        print(datetime.datetime.time(datetime.datetime.now()))
         returned.append(None)
         returned.append(valid)
         returned.append(errors)
-        returned.append(responses)
         returned.append(warnings)
         return returned

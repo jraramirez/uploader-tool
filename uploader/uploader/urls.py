@@ -28,7 +28,7 @@ urlpatterns = [
         # Assisted-uploader link
         url(r'^all/(?P<uploader_name>[a-z]+)/$', file_loader.views.upload, name='upload'),
         # Auto-uploader link
-        url(r'^auto/(?P<uploader_name>[a-z]+)/$', file_loader.views.auto_upload, name='auto_upload'),
+        url(r'^auto/(?P<uploader_name>.*)/$', file_loader.views.auto_upload, name='auto_upload'),
     ])),
     # Manager urls
     url(r'^manager/', include('manager.urls')),

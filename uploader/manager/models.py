@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class MTDTA_UPLOADER(models.Model):
-    uploader = models.IntegerField(primary_key=True)
+    uploader = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=255)
     source_path = models.CharField(max_length=255)
@@ -15,10 +15,13 @@ class MTDTA_UPLOADER(models.Model):
     target_table = models.CharField(max_length=255)
     last_update_uid = models.CharField(max_length=255)
     last_update = models.DateField()
+
+    def __str__(self):
+        return 'Uploader: ' + self.name
     
 class MTDTA_UPLOADER_PARAMS(models.Model):
     uploader = models.ForeignKey(MTDTA_UPLOADER, on_delete=models.CASCADE)
-    parameter = models.IntegerField(primary_key=True)
+    parameter = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     data_type = models.CharField(max_length=255)
@@ -27,10 +30,13 @@ class MTDTA_UPLOADER_PARAMS(models.Model):
     format = models.CharField(max_length=255)
     last_update_uid = models.CharField(max_length=255)
     last_update = models.DateField()
+
+    def __str__(self):
+        return 'Uploader ID:' + str(self.uploader_id) + '; Parameter: ' + self.name
     
 class MTDTA_UPLOADER_COLS(models.Model):
     uploader = models.ForeignKey(MTDTA_UPLOADER, on_delete=models.CASCADE)
-    column = models.IntegerField(primary_key=True)
+    column = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     data_type = models.CharField(max_length=255)
@@ -39,3 +45,6 @@ class MTDTA_UPLOADER_COLS(models.Model):
     format = models.CharField(max_length=255)
     last_update_uid = models.CharField(max_length=255)
     last_update = models.DateField()
+    
+    def __str__(self):
+        return 'Uploader ID: ' + str(self.uploader_id) + '; Column: ' + self.name

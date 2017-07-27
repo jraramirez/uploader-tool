@@ -34,7 +34,7 @@
     <!-- View of file errors-->
     {% if errors %}
         <hr>    
-        File Invalid:
+        Errors:
         <p style="color: red;">
             <ul>
             {% for error in errors %}
@@ -47,7 +47,7 @@
     <!-- View of file warnings-->
     {% if warnings %}
         <hr>    
-        File Warnings:
+        Warnings:
         <p style="color: red;">
             <ul>
             {% for warning in warnings %}
@@ -61,7 +61,7 @@
     {% if fileMetadata %}
         <hr>
         <p>
-            File metadata:
+            File Metadata:
         </p>
         <p>
         <table>
@@ -78,7 +78,7 @@
     {% if uploaderMetadata %}
         <hr>
         <p>
-            Uploader Metadata in database:
+            Uploader Metadata:
         </p>
         <table>
             {% for label, data in uploaderMetadata %}
@@ -94,7 +94,7 @@
     {% if uploaderMetadataParameters %}
         <hr>
         <p>
-            Uploader Metadata Parameters in database:
+            Uploader Metadata Parameters:
         </p>
         <table>
             <tr>
@@ -117,7 +117,7 @@
     {% if uploaderMetadataColumns %}
         <hr>
         <p>
-            Uploader Metadata Columns in database:
+            Uploader Metadata Columns:
         </p>
         <table>
             <tr>

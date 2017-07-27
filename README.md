@@ -1,20 +1,20 @@
-# Uploader Tool
+# File Loader Bot
 
 * DEV Version: http://a4pgbizopsdev.svcs.entsvcs.net/uploader
 * PROD Version:
 
-### About Uploader Tool
+### About File Loader Bot
 
-The tool used to upload reports in excel or csv format to DNA databases. This tool can be used to standardize all loads of database tables from files across the production environment. It can be leveraged by all existing and future developments which involves file loading mechanism. It will greatly benefit the business as this will speed up development, utilize available infrastructure resource, reduce support costs, and reduce feature upgrade costs. 
+The tool used to upload reports in excel or csv format to databases. This tool is used to standardize all loads of database tables from files across the production environment. It can be leveraged by all existing and future developments which involves file loading mechanism. It will greatly benefit the business as this will speed up development, utilize available infrastructure resource, reduce support costs, and reduce feature upgrade costs.
+
+In order to operate properly, the file loader bot will utilize database tables called metadata tables. These tables, after setting up properly, will direct the bot on how the files are loaded into target tables. The file loader bot will communicate everything it does with the users via email.
 
 ### Architecture
-#### Backend Technologies:
+#### Technologies:
 * Python 3.5.x
 * Django 1.11.2 Framework
-#### Frontend Technologies:
-* Simple HTML
 
-The implementation will utilize python libraries that can read any type of excel files and can perform file operations. Django framework will handle the application’s server connection configurations.
+The implementation will utilize python libraries that can read any type of csv or excel files and can perform file operations. Django framework will handle the application’s server connection configurations.
 
 #### Python and Django Libraries:
 * django-pyodbc and django-pyodbc-azure – for connecting to server databases using ODBC connection
@@ -23,15 +23,23 @@ The implementation will utilize python libraries that can read any type of excel
 * openpyxl – for spreadsheet file operations
 * os – for file and directory operations
 
-### Data Flow
+### Process Flow
 
-#### Automated
-![Automated](https://github.hpe.com/TTT/uploader-tool/blob/master/images/automated.png)
+#### Overview
+![Simple](https://github.hpe.com/TTT/uploader-tool/blob/master/images/simple.png)
 
-#### Assisted
-![Assisted](https://github.hpe.com/TTT/uploader-tool/blob/master/images/assisted.png)
+#### Detailed View
+![Detailed](https://github.hpe.com/TTT/uploader-tool/blob/master/images/detailed.png)
 
-### Features
+### Metadata Tables
+
+https://github.hpe.com/TTT/uploader-tool/blob/master/metadata-tables.md
+
+### Setting Up a New Uploader
+
+https://github.hpe.com/TTT/uploader-tool/blob/master/setup-new-uploader.md
+
+### File Loader Bot Features
 
 * Verify that source path exists.
 * Verify that the file exists in the source path.
@@ -49,17 +57,19 @@ The implementation will utilize python libraries that can read any type of excel
 * Detect if there are null records in the source file that is expected to have a value.
 * Provide a useful message for null records that should have a value.
 
-#### In Progress
+### New
+
 * Handle data in the file with commas for CSV files.
-* Verify that the number of rows loaded into the table is matching with the contents of the file.
-* Provide a useful message if the number of rows are not matching. Show the number of rows loaded to the table and number of rows in the source file.
 * The bot should be able to transfer the file to the archive folder if the file loading is successful.
 * The bot should provide an error message for unsuccessful file load and transfer the file to the error folder.
+* The bot will send an email to the support team if the load was successful or not.
+
+#### In Progress
+* Verify that the number of rows loaded into the table is matching with the contents of the file.
+* Provide a useful message if the number of rows are not matching. Show the number of rows loaded to the table and number of rows in the source file.
 * Check that the file is reasonable depending on the count of records in the file compared to the count of the previous files that were successfully loaded.
 * Check that the file is reasonable depending on fields from the file and the destination table.
 * Check that the file is reasonable depending on file size compared to the file size of the previous files that were successfully loaded.
-* The bot will send an email to the support team if the load was successful or not.
-
 
 ### Deployment
 
