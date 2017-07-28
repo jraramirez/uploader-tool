@@ -1,12 +1,15 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'file_loader/style.css' %}" />
 <html>
 <head>
-    <title>Excel File Upload</title>
+    <title>Assisted File Upload for {{ uploader_name }}</title>
 </head>
 <body>
     {% if form %}
-    <h3>Excel File Upload</h3>
+    <h3>Assisted File Upload for {{ uploader_name }}</h3>
 
-    <p>Select the Excel file</p>
+    <p>Select the file</p>
     <form action="" enctype="multipart/form-data"  method="post">
         <table>
             {{ form.as_table }}
@@ -17,25 +20,25 @@
             <input type="submit" value="Upload" name="upload">
         {% endif %}
     </form>
+    {% else %}
+    <h3>Automated File Upload for {{ uploader_name }}</h3>
     {% endif %}
 
     <!-- View of responses about the file-->
     {% if responses %}
-        <hr>    
+        {% for response in responses %}
         <p>
-            <ul>
-            {% for response in responses %}
-            <li>{{ response }}</li>
-            {% endfor %}
-            </ul>
+            {{ response }}
         </p>
+        {% endfor %}
     {% endif %}
 
     <!-- View of file errors-->
     {% if errors %}
-        <hr>    
-        Errors:
-        <p style="color: red;">
+        <p>
+            Errors:
+        </p>
+        <p>
             <ul>
             {% for error in errors %}
             <li>{{ error }}</li>
@@ -46,9 +49,10 @@
 
     <!-- View of file warnings-->
     {% if warnings %}
-        <hr>    
-        Warnings:
-        <p style="color: red;">
+        <p>
+            Warnings:
+        </p>
+        <p>
             <ul>
             {% for warning in warnings %}
             <li>{{ warning }}</li>
@@ -57,29 +61,12 @@
         </p>
     {% endif %}
 
-    <!-- View of file metadata-->
-    {% if fileMetadata %}
-        <hr>
-        <p>
-            File Metadata:
-        </p>
-        <p>
-        <table>
-            {% for label, data in fileMetadata %}
-            <tr>
-                <td>{{ label }}</td>
-                <td>{{ data }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
-
-    <!-- View of uploader metadata -->
+    <!-- View of uploader metadata-->
     {% if uploaderMetadata %}
-        <hr>
         <p>
             Uploader Metadata:
         </p>
+        <p>
         <table>
             {% for label, data in uploaderMetadata %}
             <tr>
@@ -92,7 +79,6 @@
     
     <!-- View of uploader metadata parameters -->
     {% if uploaderMetadataParameters %}
-        <hr>
         <p>
             Uploader Metadata Parameters:
         </p>
@@ -115,7 +101,6 @@
 
     <!-- View of uploader metadata columns -->
     {% if uploaderMetadataColumns %}
-        <hr>
         <p>
             Uploader Metadata Columns:
         </p>

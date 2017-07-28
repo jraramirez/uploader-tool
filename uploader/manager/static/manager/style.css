@@ -1,0 +1,22 @@
+html {
+    background-color: grey;
+}
+body {
+    background-color: white;
+    border-width: 2px;
+    padding: 20px 70px;
+    left: 8px;
+    max-width: 1200px;
+    margin: 0px auto;
+    position: relative;
+    font-family: 'Arial';
+    font-size: 18px;
+}
+
+table, tr, td{
+    padding: 6px 3px;
+    line-height: 20px;
+    border-spacing: 2px;
+    border-collapse: collapse;
+    border: 1px solid grey;
+}

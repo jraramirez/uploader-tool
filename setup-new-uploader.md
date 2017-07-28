@@ -2,7 +2,7 @@
 
 #### A. Target Table Setup
 
-1. Make sure that the target table is properly setup. The table should use a column named id as primary key.
+1. Make sure that the target table is properly setup. The table should use a column named ```id``` as primary key.
 
 2. Make the file loader bot recognize the new target table.
     1. Add the name of the target table to the list of target tables: ```target-tables.csv```
