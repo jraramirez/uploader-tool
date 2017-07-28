@@ -18,17 +18,15 @@ In order to operate properly, the file loader bot will utilize database tables c
 #### Detailed View
 ![Detailed](https://github.hpe.com/TTT/uploader-tool/blob/master/images/detailed.png)
 
-### Metadata Tables
+### [About Metadata Tables](https://github.hpe.com/TTT/uploader-tool/blob/master/metadata-tables.md)
 
-https://github.hpe.com/TTT/uploader-tool/blob/master/metadata-tables.md
+### [Setting Up a New Uploader](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-new-uploader.md)
 
-### Setting Up a New Uploader
+### [File Loader Bot Usage](https://github.hpe.com/TTT/uploader-tool/blob/master/file-loader-bot-usage.md)
 
-https://github.hpe.com/TTT/uploader-tool/blob/master/setup-new-uploader.md
+### [Setting Up the Metadata Tables](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-metadata-tables.md)
 
-### File Loader Bot Usage
-
-https://github.hpe.com/TTT/uploader-tool/blob/master/file-loader-bot-usage.md
+### [About Administrator Page](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-django-admin.md)
 
 ### File Loader Bot Features
 

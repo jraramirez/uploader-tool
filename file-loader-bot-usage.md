@@ -16,4 +16,4 @@ The file loader bot maintains a list of active uploaders and has a simple schedu
 
 #### Assisted Upload
 The file loader bot has a simple user interface where the upload can be performed.
-The user interface can be found here ```http://a4pgbizopsdev.svcs.entsvcs.net/uploader``` [The Site is Under Construction]
+The user interface can be found here ```http://a4pgbizopsdev.svcs.entsvcs.net/uploader/assisted/[uploader name]``` [The Site is Under Construction]

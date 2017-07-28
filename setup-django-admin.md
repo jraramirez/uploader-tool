@@ -8,7 +8,7 @@
 To add a new uploader, add a new row in the metadata uploader table using the following steps.
 
 Use the information here as guide in filling up the fields: https://github.hpe.com/TTT/uploader-tool/blob/master/metadata-tables.md
-1. On the django admin page, click the ```Mtdta_ploaders``` under MANAGER.
+1. On the django admin page, click the ```Mtdta_uploaders``` under MANAGER.
 2. On the resulting page in ```step 1```, click the ```ADD MTDTA_UPLOADER +``` button on the upper right.
 3. Fill up the fields with the desired values and click ```SAVE``` when finished.
 

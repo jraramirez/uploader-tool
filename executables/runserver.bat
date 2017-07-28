@@ -1,1 +1,1 @@
-python ..\uploader\manage.py runserver 0.0.0.0:80
+python ..\uploader\manage.py runserver 0.0.0.0:80 > ..\maintenance\logs.txt

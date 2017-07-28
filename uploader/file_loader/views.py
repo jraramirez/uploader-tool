@@ -110,11 +110,11 @@ def auto_upload(request, uploader_name):
     # Move file after processing
     if(inputFile):
         inputFile.close()
-    # returned = logic.moveFile(logic, valid, uploaderMetadataRaw)
-    # valid = returned[1]
-    # ers = returned[2]
-    # for e in ers:
-    #     errors.append(e)
+    returned = logic.moveFile(logic, valid, uploaderMetadataRaw)
+    valid = returned[1]
+    ers = returned[2]
+    for e in ers:
+        errors.append(e)
 
     # Email all notifications
     # TODO: Get sender and recipient from metadata table
@@ -141,6 +141,7 @@ def auto_upload(request, uploader_name):
             'responses': responses,
             'errors': errors,
             'warnings': warnings,
+            'uploader_name': uploader_name,
             'uploaderMetadata': uploaderMetadata,
             'uploaderMetadataParameters': uploaderMetadataParameters,
             'uploaderMetadataParameterLabels': uploaderMetadataParameterLabels,
@@ -158,8 +159,10 @@ def upload(request, uploader_name):
     returned = []
     responses = []
     valid = True
+    inputFile = None
 
     uploaderMetadata = []
+    uploaderMetadataRaw = []
     uploaderMetadataParameters = []
     uploaderMetadataColumns = []
 
@@ -171,14 +174,14 @@ def upload(request, uploader_name):
     logic = UploadLogic
     ilogic = InsertLogic
     returned = logic.getUploaderMetadata(logic, uploader_name)
-    uploaderMetadata = returned[0]
+    uploaderMetadataRaw = returned[0]
     valid = returned[1]
     ers = returned[2]
     for e in ers:
         errors.append(e)
     uploaderMetadataLabels = logic.getUploaderMetadataLabels(logic)
-    if(uploaderMetadata):
-        uploaderMetadata = zip(uploaderMetadataLabels, uploaderMetadata)
+    if(uploaderMetadataRaw):
+        uploaderMetadata = zip(uploaderMetadataLabels, uploaderMetadataRaw)
 
     # Get uploader metadata parameters from database
     if(valid):
@@ -200,27 +203,18 @@ def upload(request, uploader_name):
             errors.append(e)
         uploaderMetadataColumnLabels = logic.getUploaderMetadataColumnLabels(logic)
 
-    # Validate folder and file existence
-    if(valid):
-        returned = logic.validateFile(logic, uploader_name)
-        valid = returned[1]
-        ers = returned[2]
-        for e in ers:
-            errors.append(e)
-
     # Submit File View
     if request.method == "POST" and request.POST.get('upload'):
         form = UploadFileForm(request.POST, request.FILES)
         inputFile = request.FILES['file']
         if form.is_valid():
             ilogic = InsertLogic
-            returned = ilogic.properInsert(ilogic, inputFile, uploader_name)
+            returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
             valid = returned[1]
             ers = returned[2]
             for e in ers:
                 errors.append(e)
-            responses = returned[3]
-            warnings = returned[4]
+            warnings = returned[3]
         else:
             errors.append('There was an error in uploading the file. Make sure that the file has passed validation.')
 
@@ -229,13 +223,13 @@ def upload(request, uploader_name):
         # Validate file metadata
         form = UploadFileForm(request.POST, request.FILES)
         inputFile = request.FILES['file']
-        returned = logic.validateFileMetadata(logic, inputFile, uploader_name)
+        returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
         valid = returned[1]
         ers = returned[2]
         for e in ers:
             errors.append(e)
         if(valid):
-            responses.append("File is valid.")
+            responses.append("Metadata is valid.")
 
     # Default View
     else:
@@ -250,6 +244,7 @@ def upload(request, uploader_name):
             'responses': responses,
             'errors': errors,
             'warnings': warnings,
+            'uploader_name': uploader_name,
             'uploaderMetadata': uploaderMetadata,
             'uploaderMetadataParameters': uploaderMetadataParameters,
             'uploaderMetadataParameterLabels': uploaderMetadataParameterLabels,
