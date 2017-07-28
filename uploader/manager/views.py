@@ -4,8 +4,14 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from . import views
 
 def index(request):
-    output = "Main Site"
+    
+    # TODO: Get all uploaders
+    uploaders = ['shift', 'transition-countries']
+
     return render(
         request,
-        'manager/index.html'
+        'manager/index.html',
+        {
+            'uploaders': uploaders,
+        },
     )

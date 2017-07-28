@@ -1,6 +1,7 @@
 import requests
+import time
 
 while True:
     
-    r = requests.get("http://localhost:8000/uploader/auto/shift/")
+    r = requests.get("http://a4pgbizopsdev.svcs.entsvcs.net/uploader/auto/shift/")
     time.sleep(60)

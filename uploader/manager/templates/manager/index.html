@@ -1,11 +1,26 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'manager/style.css' %}" />
+
 <html>
 <head>
-    <title>Uploader Tool</title>
+    <title>File Loader Bot</title>
 </head>
 <body>
-    <h3>Uploader Tool</h3>
-    <p>Select type of upload</p>
-    <a href="/uploader/shift/">Shift</a>
-    <a href="/uploader/svr/">SVR</a>
+    <h3>File Loader Bot</h3>
+        <!-- View of uploaders -->
+    {% if uploaders %}
+        <hr>
+        <p>Select an uploader</p>
+        <p>
+            <ul>
+            {% for uploader in uploaders %}
+            <li>
+                <a href="/uploader/assisted/{{ uploader }}/">{{ uploader }}</a>
+            </li>
+            {% endfor %}
+            </ul>
+        </p>
+    {% endif %}
 </body>
 </html>
