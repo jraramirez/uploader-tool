@@ -390,3 +390,24 @@ class UploadLogic:
         
         models.close()
         copyfile('../maintenance/models.py', 'file_loader/models.py')
+
+    # Get all uploader names
+    def getAllUploaderNames(self):
+        valid = True
+        returned = {}
+        errors = []
+        data = {'names':[]}
+
+        if(MTDTA_UPLOADER.objects.all().exists()):
+            uploaderMetadata = MTDTA_UPLOADER.objects.all()
+            for meta in uploaderMetadata:
+                data['names'].append(meta.name)
+        else:
+            errors.append("Uploader is not set up properly.")
+            valid = False
+        returned = {
+            'valid' : valid,
+            'errors' : errors,
+            'data' : data,
+        }
+        return returned
