@@ -7,8 +7,11 @@ from manager.uploader import UploadLogic
 
 def index(request):
     
-    # TODO: Get all uploaders
-    uploaders = ['shift', 'transition-countries']
+    logic = UploadLogic
+
+    # Get all uploader names
+    returned = logic.getAllUploaderNames(logic)
+    uploaders = returned['data']['names']
 
     return render(
         request,
@@ -22,8 +25,9 @@ def refresh(request):
     
     logic = UploadLogic
 
-    # TODO: Get all uploaders
-    uploaders = ['shift', 'transition-countries']
+    # Get all uploader names
+    returned = logic.getAllUploaderNames(logic)
+    uploaders = returned['data']['names']
 
     data = logic.getAllTargetTablesAndSchemas(logic)['data']
     logic.putTargetTablesToModels(logic, data)

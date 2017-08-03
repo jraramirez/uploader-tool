@@ -5,13 +5,8 @@
 1. Make sure that the target table is properly setup. The table should use a column named ```id``` as primary key.
 
 2. Make the file loader bot recognize the new target table.
-    1. Add the name of the target table to the list of target tables: ```target-tables.csv```
-    
-        The location of this list is here: ```\\[server]\pg_bizops\uploader-tool\maintenance\target-tables.csv```
 
-    2. Run the script ```recognize-tables.bat``` while remotely connected to the server.
-    
-        The location of this script is here: ```D:\pg_bizops\uploader-tool\executables\recognize-tables.bat```
+Simply visit the url http://a4pgbizopsdev.svcs.entsvcs.net/uploader/refresh
 
 #### B. Metadata Table Setup
 
