@@ -89,7 +89,7 @@ def auto_upload(request, uploader_name):
         for e in ers:
             errors.append(e)
 
-    # # Insert after validations
+    # Insert after validations
     if(valid):
         returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
         valid = returned[1]

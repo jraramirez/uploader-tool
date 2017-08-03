@@ -34,8 +34,7 @@ class InsertLogic:
         startRow = 0
         
         uploaderName = uploaderMetadata[1]
-
-        # TODO: Remove underscores of the target table name
+        targetSchemaName = uploaderMetadata[7]
         targetTableName = re.sub(r'[\W_]', '', uploaderMetadata[8])
         targetTable = apps.get_model('file_loader', targetTableName)
 
@@ -93,10 +92,10 @@ class InsertLogic:
                     i = i + 1
 
             with transaction.atomic():
-                targetTable.objects.all().delete()
+                targetTable.objects.using(targetSchemaName).all().delete()
                 for r in all:
                     t = targetTable(*r)
-                    t.save()
+                    t.save(using=targetSchemaName)
 
             # Blank values per required column validation
             print("Blank values validation")
@@ -114,7 +113,7 @@ class InsertLogic:
                 values = []
                 if(required[columnNumber] == 'Y'):
                     hasBlank = False
-                    values = targetTable.objects.values_list(f.name, flat=True)
+                    values = targetTable.objects.using(targetSchemaName).values_list(f.name, flat=True)
                     for value in values:
                         if(value == None):
                             hasBlank = True
@@ -130,7 +129,7 @@ class InsertLogic:
             for f in targetTable._meta.get_fields():
                 if(not f.name == 'id'):
                     isValidType = True
-                    values = targetTable.objects.values_list(f.name, flat=True)
+                    values = targetTable.objects.using(targetSchemaName).values_list(f.name, flat=True)
                     for value in values:
                         typeFound = str(type(value).__name__)
                         if(not (str(typeFound) == str(types[columnNumber])) and not (str(typeFound) == 'NoneType')):
@@ -151,6 +150,8 @@ class InsertLogic:
                     if(typeFound == 'float' and types[columnNumber] == 'Decimal'):
                         isValidType = True
                     if(typeFound == 'str'):
+                        isValidType = True
+                    if(str(types[columnNumber]) == 'str'):
                         isValidType = True
                     if(not isValidType):
                         warnings.append("Column '" + names[columnNumber] + "' does not follow expected data type. Expected: '" + types[columnNumber] + "'. Found: '" + typeFound + "'")

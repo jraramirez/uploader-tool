@@ -24,7 +24,7 @@ urlpatterns = [
     # Link to types of uploads
     url(r'^uploader/', include([
         url(r'^', include('manager.urls')),
-        # url(r'^shift/', include('shift.urls')),
+        url(r'^refresh/', include('manager.urls')),
         # Assisted-uploader link
         url(r'^assisted/(?P<uploader_name>.*)/$', file_loader.views.upload, name='upload'),
         # Auto-uploader link
