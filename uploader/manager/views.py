@@ -3,10 +3,30 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 
 from . import views
 
+from manager.uploader import UploadLogic
+
 def index(request):
     
     # TODO: Get all uploaders
     uploaders = ['shift', 'transition-countries']
+
+    return render(
+        request,
+        'manager/index.html',
+        {
+            'uploaders': uploaders,
+        },
+    )
+
+def refresh(request):
+    
+    logic = UploadLogic
+
+    # TODO: Get all uploaders
+    uploaders = ['shift', 'transition-countries']
+
+    data = logic.getAllTargetTablesAndSchemas(logic)['data']
+    logic.putTargetTablesToModels(logic, data)
 
     return render(
         request,

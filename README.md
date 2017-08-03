@@ -53,7 +53,7 @@ In order to operate properly, the file loader bot will utilize database tables c
 * The bot should provide an error message for unsuccessful file load and transfer the file to the error folder.
 * The bot will send an email to the support team if the load was successful or not.
 
-#### In Progress
+### In Progress
 * Verify that the number of rows loaded into the table is matching with the contents of the file.
 * Provide a useful message if the number of rows are not matching. Show the number of rows loaded to the table and number of rows in the source file.
 * Check that the file is reasonable depending on the count of records in the file compared to the count of the previous files that were successfully loaded.

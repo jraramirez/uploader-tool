@@ -1,9 +1,9 @@
 -- TODO: Use variables to fill up the template easier
 
-USE [PG_BIZOPS_DEV]
+USE [FPD]
 GO
 
-INSERT INTO [dbo].[manager_mtdta_uploader]
+INSERT INTO [dbo].[mtdta_uploader]
            ([name]
            ,[description]
            ,[source_path]
@@ -16,20 +16,20 @@ INSERT INTO [dbo].[manager_mtdta_uploader]
            ,[last_update_uid]
            ,[last_update])
      VALUES
-           ('transition-countries'
-           ,'File upload of transition countries'
-           ,'\pg_bizops\FILE_UPLOADER\TRANSITION COUNTRIES'
+           ('uploader-name'
+           ,'File upload of ...'
+           ,'\pg_bizops\FILE_UPLOADER\[SOURCE FOLDER NAME]'
            ,'16.179.110.132'
-           ,'20170704 BW Monthly Hours Data.xlsb'
-           ,'test'
-           ,'BW Hours Data'
-           ,'pg_bizops_dev'
-           ,'TMP_TRANSITION_COUNTRIES'
-           ,'joe-ramir.agn.ramirez@hpe.com'
+           ,'Data'
+           ,'.xlsx'
+           ,'Sheet1'
+           ,'FPD'
+           ,'TMP_TARGET_TABLE'
+           ,'username@hpe.com'
            ,GETDATE())
 GO
 
-INSERT INTO [dbo].[manager_mtdta_uploader_params]
+INSERT INTO [dbo].[mtdta_uploader_params]
            ([uploader_id]
            ,[parameter]
            ,[name]
@@ -41,18 +41,18 @@ INSERT INTO [dbo].[manager_mtdta_uploader_params]
            ,[last_update_uid]
            ,[last_update])
      VALUES
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries')
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name')
            ,'period date'
            ,'description'
            ,'datetime'
            ,'Y'
            ,'01-01-2017'
            ,'mm-dd-yyyy'
-           ,'joe-ramir.agn.ramirez@hpe.com'
+           ,'username@hpe.com'
            ,GETDATE())
 GO
 
-INSERT INTO [dbo].[manager_mtdta_uploader_cols]
+INSERT INTO [dbo].[mtdta_uploader_cols]
            ([uploader_id]
            ,[column]
            ,[name]
@@ -64,28 +64,28 @@ INSERT INTO [dbo].[manager_mtdta_uploader_cols]
            ,[last_update_uid]
            ,[last_update])
      VALUES
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries') 		'', 	'',     'str',    'N', 		'', 		'',         'joe-ramir.agn.ramirez@hpe.com',          GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'),		'', 	'',     'str',    'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str',    'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'',   '',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'),       	'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'),		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 	 	'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 	 	'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 	 	'',   '',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'',   '',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'', 	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'',	'',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE()),
-           ((select uploader from [dbo].[manager_mtdta_uploader] where name = 'transition-countries'), 		'',   '',     'str', 	'N', 		'', 		'', 		'joe-ramir.agn.ramirez@hpe.com', 		GETDATE())
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name') 		'', 	'',     'str',    'N', 		'', 		'',         'user@hpe.com',         GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'),		'', 	'',     'str',    'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str',    'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'',   '',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'),       '', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'),		'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'',   '',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'',   '',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'', 	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'',	'',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'), 	'',   '',     'str', 	'N', 		'', 		'', 		'user@hpe.com', 		GETDATE())
 GO
 
 

@@ -24,3 +24,5 @@
 1. Create the actual corresponding folder for the new uploader under ```\\[server]\pg_bizops\FILE_UPLOADER\[folder name]```.
 
     Make sure that ```[folder name]``` is equivalent to your input on the metadata table under ```[source path]``` field when ```step B``` was performed.
+
+2. Under the folder you have created in ```step 1```, ```\\[server]\pg_bizops\FILE_UPLOADER\[folder name]```, create 3 folders named ```New```, ```Archive```, and ```Error```.
