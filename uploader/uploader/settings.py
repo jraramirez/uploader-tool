@@ -12,9 +12,16 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
+# DEV SERVER
+server_ip_address = '16.179.110.132'
+server_domain_name = 'a4pgbizopsdev.svcs.entsvcs.net'
+
+# PRO SERVER
+# server_ip_address = '16.179.109.62'
+# server_domain_name = 'a4pgbizops.svcs.entsvcs.net'
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -26,7 +33,7 @@ SECRET_KEY = '*x79vayui$$2k&bx!wete@_0^6k@9p7&gv6&$du7ps4&sjrii_'
 DEBUG = True
 # DEBUG = False
 
-# ALLOWED_HOSTS = ['16.179.110.132', 'a4pgbizopsdev.svcs.entsvcs.net']
+# ALLOWED_HOSTS = [server_ip_address, server_domain_name]
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -39,7 +46,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'djangosecure',
-    # 'shift',
     'file_loader',
     'manager'
 ]
@@ -86,19 +92,39 @@ WSGI_APPLICATION = 'uploader.wsgi.application'
 
 DATABASES = {
     'default': {
-        'NAME': 'PG_BIZOPS_DEV',
+        'NAME': 'FPD',
         'ENGINE': 'sql_server.pyodbc',
-        'HOST': '16.179.110.132',
+        'HOST': server_ip_address,
         'ATOMIC_REQUESTS': True,
         'AUTOCOMMIT': True,
         'OPTIONS': {
             'driver': 'SQL Server Native Client 11.0',
         },
     },
-    'ppd': {
+    'PG_BIZOPS_DEV': {
+        'NAME': 'PG_BIZOPS_DEV',
+        'ENGINE': 'sql_server.pyodbc',
+        'HOST': server_ip_address,
+        'ATOMIC_REQUESTS': True,
+        'AUTOCOMMIT': True,
+        'OPTIONS': {
+            'driver': 'SQL Server Native Client 11.0',
+        },
+    },
+    'PG_PROJECTS_DEV': {
         'NAME': 'PG_PROJECTS_DEV',
         'ENGINE': 'sql_server.pyodbc',
-        'HOST': '16.179.110.132',
+        'HOST': server_ip_address,
+        'ATOMIC_REQUESTS': True,
+        'AUTOCOMMIT': True,
+        'OPTIONS': {
+            'driver': 'SQL Server Native Client 11.0',
+        },
+    },
+    'FPD': {
+        'NAME': 'FPD',
+        'ENGINE': 'sql_server.pyodbc',
+        'HOST': server_ip_address,
         'ATOMIC_REQUESTS': True,
         'AUTOCOMMIT': True,
         'OPTIONS': {

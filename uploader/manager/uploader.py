@@ -1,10 +1,12 @@
 from manager.models import MTDTA_UPLOADER
 from manager.models import MTDTA_UPLOADER_PARAMS
 from manager.models import MTDTA_UPLOADER_COLS
+import sys
 
 from manager.spreadsheet import SpreadSheetLogic
 
 from django.apps import apps
+from django.contrib.contenttypes.models import ContentType 
 
 import csv
 from openpyxl import load_workbook
@@ -15,6 +17,10 @@ import datetime
 import ast
 import os
 import re
+import fileinput
+import subprocess
+
+
 
 class UploadLogic:
 
@@ -286,13 +292,24 @@ class UploadLogic:
                 # Format validation
                 # TODO: If needed
 
-        # TODO: Remove underscores of the target table name
+        # Validate Target Table
+        targetSchemaName = uploaderMetadata[7]
         targetTableName = re.sub(r'[\W_]', '', uploaderMetadata[8])
-        try: 
+        targetTable = None
+        try:
             targetTable = apps.get_model('file_loader', targetTableName)
-        except(LookupError):
+        except():
             valid = False
             errors.append("Invalid target table: " + "Found: '" + str(uploaderMetadata[8]) + "'.")
+        
+        # Validate Target Schema
+        targetSchemaName = uploaderMetadata[7]
+        if(targetTable):
+            try:
+                print(targetTable.objects.using(targetSchemaName).all())
+            except:
+                valid = False
+                errors.append("Invalid target schema: " + "Found: '" + str(uploaderMetadata[7]) + "'.")
 
         returned.append(None)
         returned.append(valid)
@@ -300,20 +317,22 @@ class UploadLogic:
         return returned
 
     # Move file 
-    def moveFile(self, valid, uploaderMetadata):
+    def moveFile(self, valid, uploaderMetadata):    
         returned = []
         errors = []
         canMove = True
+
+        errorFolderPath = "\\\%s%s\\Error" % (uploaderMetadata[11], uploaderMetadata[3])
 
         # Determine if the destination directory is Archive or Error
         if(valid):
             destinationPath = "\\\%s%s\\Archive" % (uploaderMetadata[11], uploaderMetadata[3])
         else:
-            if(not uploaderMetadata):
+            if(not os.path.exists(errorFolderPath)):
                 errors.append("Cannot move file to Error folder due to invalid source path.")
                 canMove = False
             else:
-                destinationPath = "\\\%s%s\\Error" % (uploaderMetadata[11], uploaderMetadata[3])
+                destinationPath = errorFolderPath
         if(canMove):
             folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
             files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
@@ -329,3 +348,45 @@ class UploadLogic:
         returned.append(valid)
         returned.append(errors)
         return returned
+
+    # Get all target schema and target tables
+    def getAllTargetTablesAndSchemas(self):
+        valid = True
+        returned = {}
+        errors = []
+        data = {}
+
+        if(MTDTA_UPLOADER.objects.all().exists()):
+            uploaderMetadata = MTDTA_UPLOADER.objects.all()
+            for meta in uploaderMetadata:
+                data.setdefault(str(meta.target_schema), []).append(meta.target_table)
+        else:
+            errors.append("Uploader is not set up properly.")
+            valid = False
+        returned = {
+            'valid' : valid,
+            'errors' : errors,
+            'data' : data,
+        }
+        return returned
+
+    # Put target tables to models
+    def putTargetTablesToModels(self, data):
+        open('../maintenance/models.py', 'w').close()
+        models = open('../maintenance/models.py', 'a')
+        for schema in data:
+            tables = ""       
+            for table in data[schema]:
+                tables = tables + " " + table
+            command = "python manage.py inspectdb" + tables + " --database=" + schema
+            p = subprocess.call(command, stdout=models)
+
+        models.close()
+        phrase = 'from __future__ import unicode_literals'
+        for line in fileinput.input('../maintenance/models.py', inplace=True):
+            if phrase in line:
+                continue
+            print(line, end='')
+        
+        models.close()
+        copyfile('../maintenance/models.py', 'file_loader/models.py')
