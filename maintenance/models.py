@@ -9,34 +9,11 @@
 from django.db import models
 
 
-class TmpTransitionBw(models.Model):
-    id = models.IntegerField(primary_key=True)
-    service_month = models.CharField(max_length=255, blank=True, null=True)
-    manager_email = models.CharField(max_length=255, blank=True, null=True)
-    employee_id = models.CharField(max_length=255, blank=True, null=True)
-    employee_name = models.CharField(max_length=255, blank=True, null=True)
-    employee_email = models.CharField(max_length=255, blank=True, null=True)
-    pg_level = models.CharField(max_length=255, blank=True, null=True)
-    daily_expected_hours = models.CharField(max_length=255, blank=True, null=True)
-    employee_type = models.CharField(max_length=255, blank=True, null=True)
-    bill_to_county = models.CharField(max_length=255, blank=True, null=True)
-    geography = models.CharField(max_length=255, blank=True, null=True)
-    hp_level = models.CharField(max_length=255, blank=True, null=True)
-    seat_country_code = models.CharField(max_length=255, blank=True, null=True)
-    seat_country = models.CharField(max_length=255, blank=True, null=True)
-    wbs = models.CharField(max_length=255, blank=True, null=True)
-    wbs_description = models.CharField(max_length=255, blank=True, null=True)
-    aa_type = models.CharField(max_length=255, blank=True, null=True)
-    attribute = models.CharField(max_length=255, blank=True, null=True)
-    attribute_2 = models.CharField(max_length=255, blank=True, null=True)
-    short_text = models.CharField(max_length=255, blank=True, null=True)
-    hp_labor_rate = models.DecimalField(max_digits=38, decimal_places=15, blank=True, null=True)
-    usd_labor_currency = models.DecimalField(max_digits=38, decimal_places=15, blank=True, null=True)
-    hours = models.DecimalField(max_digits=38, decimal_places=15, blank=True, null=True)
+class TestLang(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'TMP_TRANSITION_BW'
+        db_table = 'test_lang'
 # This is an auto-generated Django model module.
 # You'll have to do the following manually to clean this up:
 #   * Rearrange models' order
@@ -122,8 +99,52 @@ class TmpNcs(models.Model):
 from django.db import models
 
 
-class TestLang(models.Model):
+class TmpTransitionBw(models.Model):
+    service_month = models.CharField(max_length=255, blank=True, null=True)
+    manager_email = models.CharField(max_length=255, blank=True, null=True)
+    employee_id = models.CharField(max_length=255, blank=True, null=True)
+    employee_name = models.CharField(max_length=255, blank=True, null=True)
+    employee_email = models.CharField(max_length=255, blank=True, null=True)
+    pg_level = models.CharField(max_length=255, blank=True, null=True)
+    daily_expected_hours = models.CharField(max_length=255, blank=True, null=True)
+    employee_type = models.CharField(max_length=255, blank=True, null=True)
+    bill_to_county = models.CharField(max_length=255, blank=True, null=True)
+    geography = models.CharField(max_length=255, blank=True, null=True)
+    hp_level = models.CharField(max_length=255, blank=True, null=True)
+    seat_country_code = models.CharField(max_length=255, blank=True, null=True)
+    seat_country = models.CharField(max_length=255, blank=True, null=True)
+    wbs = models.CharField(max_length=255, blank=True, null=True)
+    wbs_description = models.CharField(max_length=255, blank=True, null=True)
+    aa_type = models.CharField(max_length=255, blank=True, null=True)
+    attribute = models.CharField(max_length=255, blank=True, null=True)
+    attribute_2 = models.CharField(max_length=255, blank=True, null=True)
+    short_text = models.CharField(max_length=255, blank=True, null=True)
+    hp_labor_rate = models.DecimalField(max_digits=38, decimal_places=15, blank=True, null=True)
+    usd_labor_currency = models.DecimalField(max_digits=38, decimal_places=15, blank=True, null=True)
+    hours = models.DecimalField(max_digits=38, decimal_places=15, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'test_lang'
+        db_table = 'TMP_TRANSITION_BW'
+
+
+class StgItoPdoEmpList(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    report_month = models.CharField(max_length=255)
+    employee_id = models.CharField(db_column='Employee ID', max_length=255)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    region = models.CharField(db_column='Region', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    pm_name = models.CharField(db_column='PM Name', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+
+    class Meta:
+        managed = False
+        db_table = 'STG_ITO_PDO_EMP_LIST'
+
+
+class StgPgStructures(models.Model):
+    id = models.IntegerField(primary_key=True)
+    wbs_element = models.CharField(db_column='WBS element', max_length=200, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    user_code_2 = models.CharField(db_column='User code 2', max_length=100, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+
+    class Meta:
+        managed = False
+        db_table = 'STG_PG_STRUCTURES'

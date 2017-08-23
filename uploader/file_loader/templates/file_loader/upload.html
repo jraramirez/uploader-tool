@@ -3,7 +3,11 @@
 <link rel="stylesheet" type="text/css" href="{% static 'file_loader/style.css' %}" />
 <html>
 <head>
+    {% if form %}
     <title>Assisted File Upload for {{ uploader_name }}</title>
+    {% else %}
+    <title>Automated File Upload for {{ uploader_name }}</title>
+    {% endif %}
 </head>
 <body>
     {% if form %}

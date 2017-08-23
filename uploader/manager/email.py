@@ -5,15 +5,22 @@ from email.mime.text import MIMEText
 
 class EmailLogic:
 
-    def sendEmailNotification(self, sender, recipient, valid, responses, errors, warnings, uploader_name):
+    def sendEmailNotification(self, uploaderMetadataRaw, valid, responses, errors, warnings):
 
         # SMTP used by the enterprise
         smtp = 'smtp.svcs.entsvcs.com'        
 
+        validEmail = True
+        emailErrors = []
+        returned = []
         status = ""
         errorList = ""
         warningList = ""
         responseList = ""
+
+        sender = uploaderMetadataRaw[12]
+        recipient = uploaderMetadataRaw[13]
+        cc = uploaderMetadataRaw[14]
 
         if(valid):
             status = "Success"
@@ -22,9 +29,10 @@ class EmailLogic:
 
         # Create message container - the correct MIME type is multipart/alternative.
         msg = MIMEMultipart('alternative')
-        msg['Subject'] = "[File Loader Bot] [" + uploader_name + " uploader] [" + status + "] - " + responses[0]
+        msg['Subject'] = "[File Loader Bot] [" + uploaderMetadataRaw[1] + " uploader] [" + status + "] - " + responses[0]
         msg['From'] = sender
         msg['To'] = recipient
+        msg['cc'] = cc
 
         # Create the body of the message (a plain-text and an HTML version).
         for e in errors:
@@ -51,6 +59,23 @@ class EmailLogic:
         # msg.attach(part2)
 
         # Send the message via SMTP server.
-        s = smtplib.SMTP(smtp)
-        s.sendmail(sender, recipient, msg.as_string())
-        s.quit()
+        try:
+            s = smtplib.SMTP(smtp)
+            recipient = [recipient] + [cc]
+            s.sendmail(sender, recipient, msg.as_string())
+            s.quit()
+        
+        except():
+            emailErrors.append("Uploader email recipient address rejected. Email notification is not sent.")
+
+        # Always send to file loader bot support
+        # s = smtplib.SMTP(smtp)
+        # recipient = ['pg_bizopssupport@hpe.com']
+        # s.sendmail(sender, recipient, msg.as_string())
+        # s.quit()
+
+        returned.append(None)
+        returned.append(valid)
+        returned.append(emailErrors)
+        returned.append(warnings)
+        return returned
