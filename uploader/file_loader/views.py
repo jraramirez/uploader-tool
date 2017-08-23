@@ -100,10 +100,8 @@ def auto_upload(request, uploader_name):
     
     if(valid and warnings):
         responses.append("File upload successful with warnings")
-        inputFile.close()
     elif(valid and not warnings):
         responses.append("File upload successful.")
-        inputFile.close()
     else:
         responses.append("File upload have errors.")
 
@@ -117,20 +115,13 @@ def auto_upload(request, uploader_name):
         errors.append(e)
 
     # Email all notifications
-    # TODO: Get sender and recipient from metadata table
-    elogic = EmailLogic
-    sender = "pg_bizopssupport@hpe.com"
-    recipient = "joe-ramir.agn.ramirez@hpe.com"
-    elogic.sendEmailNotification(
-        elogic,
-        sender,
-        recipient,
-        valid,
-        responses,
-        errors,
-        warnings,
-        uploader_name
-    )
+    if("No files were found in the source folder." not in errors):
+        elogic = EmailLogic 
+        returned = elogic.sendEmailNotification(elogic, uploaderMetadataRaw, valid, responses, errors, warnings)
+        valid = returned[1]
+        ers = returned[2]
+        for e in ers:
+            errors.append(e)
 
     return render(
         request,
@@ -209,14 +200,29 @@ def upload(request, uploader_name):
         inputFile = request.FILES['file']
         if form.is_valid():
             ilogic = InsertLogic
-            returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
+            returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
             valid = returned[1]
             ers = returned[2]
             for e in ers:
                 errors.append(e)
-            warnings = returned[3]
+            if(valid):
+                inputFile = request.FILES['file']
+                returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
+                valid = returned[1]
+                ers = returned[2]
+                for e in ers:
+                    errors.append(e)
+                warnings = returned[3]
         else:
             errors.append('There was an error in uploading the file. Make sure that the file has passed validation.')
+        if(valid and warnings):
+            responses.append("File upload successful with warnings")
+        elif(valid and not warnings):
+            responses.append("File upload successful.")
+        else:
+            responses.append("File upload have errors.")
+        if(inputFile):
+          inputFile.close()
 
     # Validate File
     elif(request.method == "POST" and request.POST.get('validate metadata')):    
@@ -230,6 +236,8 @@ def upload(request, uploader_name):
             errors.append(e)
         if(valid):
             responses.append("Metadata is valid.")
+        if(inputFile):
+            inputFile.close()
 
     # Default View
     else:

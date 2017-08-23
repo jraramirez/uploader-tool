@@ -9,6 +9,7 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType 
 
 import csv
+import codecs
 from openpyxl import load_workbook
 from django.db import transaction
 from shutil import copyfile
@@ -19,8 +20,7 @@ import os
 import re
 import fileinput
 import subprocess
-
-
+from io import TextIOWrapper
 
 class UploadLogic:
 
@@ -45,7 +45,11 @@ class UploadLogic:
                     uploaderMetadata[0].target_table,
                     uploaderMetadata[0].last_update_uid, 
                     uploaderMetadata[0].last_update, 
-                    uploaderMetadata[0].server
+                    uploaderMetadata[0].server,
+                    uploaderMetadata[0].email_sender,
+                    uploaderMetadata[0].email_recipient,
+                    uploaderMetadata[0].email_cc,
+                    uploaderMetadata[0].start_row,
                 ]
             else:
                 errors.append("Uploader name not found: '" + uploader_name + "'.")
@@ -59,7 +63,6 @@ class UploadLogic:
         return returned
 
     # Get the uploader metadata labels from database
-    # TODO: Get uploader metadata labels from database
     def getUploaderMetadataLabels(self):
         labels = [
             'Uploader ID', 
@@ -73,6 +76,11 @@ class UploadLogic:
             'Target Table',
             'Last Updated By', 
             'Last Updated',
+            'Server',
+            'Email Sender',
+            'Email Recipient',
+            'Email CC',
+            'Start Row',
         ]
         return labels
 
@@ -108,7 +116,6 @@ class UploadLogic:
         return returned
 
     # Get the uploader metadata parameter labels from database
-    # TODO: Get uploader metadata parameter labels from database
     def getUploaderMetadataParameterLabels(self):
         labels = [
             'Uploader ID', 
@@ -140,10 +147,10 @@ class UploadLogic:
                     meta.column, 
                     meta.name, 
                     meta.description,
-                    meta.data_type,
                     meta.is_required,
                     meta.default,
                     meta.format,
+                    meta.max_length,
                     meta.last_update_uid,
                     meta.last_update,
                 ])            
@@ -156,17 +163,16 @@ class UploadLogic:
         return returned
 
     # Get the uploader metadata column labels from database
-    # TODO: Get uploader metadata column labels from database
     def getUploaderMetadataColumnLabels(self):
         labels = [
             'Uploader ID', 
             'Column ID',
             'Column Name', 
             'Description', 
-            'Data Type', 
             'Required',
             'Default Value',
             'Format',
+            'Max Length',
             'Last Updated By', 
             'Last Updated',
         ]
@@ -226,68 +232,79 @@ class UploadLogic:
         # File type validation
         if(not fileExtension.lower() == uploaderMetadata[5].lower()):
             valid = False
-            errors.append("Invalid file type: " + "Expected: '" + str(uploaderMetadata[5]) + "'. Found: " + str(fileExtension) + "'")
+            errors.append("Invalid file type. " + "Expected: '" + str(uploaderMetadata[5]) + "', Found: " + str(fileExtension) + "'.")
 
         # File name validation
         if(uploaderMetadata[4].lower() not in fileName.lower()):
             valid = False
-            errors.append("Invalid file name format: " + "Expected: '" + str(uploaderMetadata[4]) + "'.")
+            errors.append("Invalid file name format. " + "Expected: '" + str(uploaderMetadata[4]) + "'.")
         
         # Sheet name validation
-        if(fileExtension == '.csv'):
-            ws = csv.reader(inputFile, delimiter=',')
-            for row in ws:
-                for cell in row:
-                    colNames.append(cell)
-                    nCols = nCols + 1
-                break
-            readSuccess = True
-        else:
-            wb = load_workbook(inputFile, read_only=True)
-            sheetNames = wb.get_sheet_names()       # Sheet Names
-            for s in sheetNames:
-                if(str(s) == uploaderMetadata[6]):
-                    sheetFound = True
-                    break
-                sheetIndex = sheetIndex + 1
-
-            if(sheetFound):
-                ws = wb[sheetNames[sheetIndex]]
-                # with wb[sheetNames[0]] as ws:
-                for row in ws.rows:
-                    for cell in row:
-                        colNames.append(cell.value)
-                        nCols = nCols + 1
-                    break
+        if(valid):
+            startRow = uploaderMetadata[15]
+            i = 0
+            if(fileExtension == '.csv'):
+                paramFile =TextIOWrapper(inputFile.file)
+                ws = csv.reader(paramFile)
+                for row in ws:
+                    if(i == startRow):
+                        for cell in row:
+                            colNames.append(cell)
+                            nCols = nCols + 1
+                        break
+                    i = i + 1
                 readSuccess = True
-                
+                paramFile.detach()
             else:
-                valid = False
-                errors.append("Invalid sheet name: " + "Expected: '" + str(uploaderMetadata[6]) + "'. Found: " + str(sheetNames[0]) + "'")
+                wb = load_workbook(inputFile, read_only=True)
+                sheetNames = wb.get_sheet_names()       # Sheet Names
+                for s in sheetNames:
+                    if(str(s) == uploaderMetadata[6]):
+                        sheetFound = True
+                        break
+                    sheetIndex = sheetIndex + 1
+
+                if(sheetFound):
+                    ws = wb[sheetNames[sheetIndex]]
+                    for row in ws.rows:
+                        if(i == startRow):
+                            for cell in row:
+                                colNames.append(cell.value)
+                                nCols = nCols + 1
+                            break
+                        i = i + 1
+                    readSuccess = True
+                else:
+                    valid = False
+                    errors.append("Invalid file sheet name. " + "Expected: '" + str(uploaderMetadata[6]) + "', Found: " + str(sheetNames[0]) + "'.")
 
         # Validate File Metadata Columns
         if(readSuccess):
             # Number of columns validation
+            metaColNames = []
+            for metaCol in uploaderMetadataColumns:
+                metaColNames.append(metaCol[2])
             if(not len(uploaderMetadataColumns) == nCols):
                 valid = False
-                errors.append("Invalid number of columns: " + "Expected: '" + str(len(uploaderMetadataColumns)) + "'. Found: '" + str(nCols) + "'." + "")
-                metaColNames = []
-                for metaCol in uploaderMetadataColumns:
-                    metaColNames.append(metaCol[2])
-                for fileCol in colNames:
-                    if(fileCol not in metaColNames):
-                        errors.append("Column not in metadata: '" + str(fileCol) + "'")
-                for metaCol, fileCol in zip(uploaderMetadataColumns, colNames):
-                    if(not metaCol[2] == fileCol):
-                        errors.append("Possible missing column: '" + metaCol[2] + "'.")
-                        break
-            
+                errors.append("Invalid file number of columns. " + "Expected: '" + str(len(uploaderMetadataColumns)) + "', Found: '" + str(nCols) + "'.")
+                if(len(uploaderMetadataColumns) > nCols):
+                    for metaCol in metaColNames:
+                        if(metaCol not in colNames):
+                            errors.append("Invalid file. Column not found in file: '" + str(metaCol) + "'.")
+                if(len(uploaderMetadataColumns) < nCols):
+                    for fileCol in colNames:
+                        if(fileCol not in metaColNames):
+                            errors.append("Invalid file. Extra column found in file: '" + str(fileCol) + "'.")
             else:
                 # Column names validation
+                nMismatch = 0
                 for metaCol, fileCol in zip(uploaderMetadataColumns, colNames):
                     if(not metaCol[2] == fileCol):
                         valid = False
-                        errors.append("Possible column name mismatch or column is missing:" + " Expected: '" + metaCol[2] + "'.")
+                        errors.append("File column name mismatch found. " + "Expected: '" + str(metaCol[2]) + "', Found: '" + str(fileCol) + "'.")
+                        nMismatch = nMismatch + 1
+                if(nMismatch > 0):
+                    errors.append("Too many column name mismatch. Check if the start row is correct. Check if columns are in proper ordering. ")
                 
                 # Format validation
                 # TODO: If needed
