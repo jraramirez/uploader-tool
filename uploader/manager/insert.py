@@ -4,7 +4,6 @@ from manager.models import MTDTA_UPLOADER_COLS
 
 from file_loader.models import *
 
-from manager.spreadsheet import SpreadSheetLogic
 from manager.uploader import UploadLogic
 
 from django.apps import apps
@@ -21,7 +20,7 @@ from io import TextIOWrapper
 class InsertLogic:
 
     # Insert data into database
-    def properInsert(self, inputFile, uploaderMetadata, uploaderMetadataColumns):
+    def properInsert(self, inputFile, uploaderMetadata, uploaderMetadataColumns, uploadType):
         returned = []
         valid = True
         errors = []
@@ -36,6 +35,8 @@ class InsertLogic:
         targetSchemaName = uploaderMetadata[7]
         targetTableName = re.sub(r'[\W_]', '', uploaderMetadata[8])
         targetTable = apps.get_model('file_loader', targetTableName)
+        fileDate = str(datetime.datetime.now())
+        fileName = inputFile.name
 
         # Get max length, required, and names from metadata columns
         for metaCol in uploaderMetadataColumns:
@@ -55,15 +56,19 @@ class InsertLogic:
 
             # Reading for csv files
             if(uploaderMetadata[5] == '.csv'):
-                paramFile =TextIOWrapper(inputFile.file)
-                ws = csv.reader(paramFile)
+                if(uploadType == 'auto'):
+                    ws = csv.reader(inputFile)
+                # TODO: Assisted upload of csv files is broken
+                elif(uploadType == 'assisted'):
+                    paramFile = TextIOWrapper(inputFile)
+                    ws = csv.reader(paramFile)
                 nCols = len(uploaderMetadataColumns)
                 i = 0
                 all = []
                 for row in ws:
                     r = []
                     j = 0
-                    columnNumber = 0
+                    columnNumber = 1
                     exceedMaxLength = False
                     for cell in row:
                         if(cell != None):
@@ -82,13 +87,17 @@ class InsertLogic:
                     else:
                         for j in range(len(row), nCols):
                             r.append(None)
+                            
+                        # Add file name and file date data
+                        r.append(fileName)
+                        r.append(fileDate)
                         if(len(r) > 0):
                             if(i > startRow):
                                 r.insert(0,i)
                                 all.append(r)
                     i = i + 1
-                paramFile.detach()
-                
+                if(uploadType == 'assisted'):
+                    paramFile.detach()
             # Reading for xls and xlsx files
             else:
                 wb = load_workbook(inputFile, read_only=True)
@@ -106,10 +115,10 @@ class InsertLogic:
                 for row in ws.iter_rows():
                     r = []
                     j = 0
-                    columnNumber = 0
+                    columnNumber = 1
                     exceedMaxLength = False
                     for cell in row:
-                        if(cell != None):
+                        if(cell.value != None):
                             r.append(str(cell.value))
                         else:
                             r.append(None)
@@ -125,6 +134,10 @@ class InsertLogic:
                     else:
                         for j in range(len(row), nCols):
                             r.append(None)
+
+                        # Add file name and file date data
+                        r.append(fileName)
+                        r.append(fileDate)
                         if(len(r) > 0):
                             if(i > startRow):
                                 r.insert(0,i)
@@ -149,11 +162,13 @@ class InsertLogic:
             print(datetime.datetime.time(datetime.datetime.now()))
             if(valid):
                 columnNumber = 0
-                for f in targetTable._meta.get_fields():
+                for name in names:
                     values = []
                     if(required[columnNumber] == 'Y'):
                         hasBlank = False
-                        values = targetTable.objects.using(targetSchemaName).values_list(f.name, flat=True)
+                        name = re.sub(r'[\W ]', '_', name)
+                        name = name.lower()
+                        values = targetTable.objects.using(targetSchemaName).values_list(name, flat=True)
                         for value in values:
                             if(value == None):
                                 hasBlank = True
@@ -161,40 +176,10 @@ class InsertLogic:
                         if(hasBlank and required[columnNumber] == 'Y'):
                             warnings.append("Column has blank values: '" + names[columnNumber] + "'. This column is required.")
                     columnNumber = columnNumber + 1
+            
             # Data type validation
-            # columnNumber = 0
-            # print("Data type validation")
-            # print(datetime.datetime.time(datetime.datetime.now()))
-            # for f in targetTable._meta.get_fields():
-            #     if(not f.name == 'id'):
-            #         isValidType = True
-            #         values = targetTable.objects.using(targetSchemaName).values_list(f.name, flat=True)
-            #         for value in values:
-            #             typeFound = str(type(value).__name__)
-            #             if(not (str(typeFound) == str(types[columnNumber])) and not (str(typeFound) == 'NoneType')):
-            #                 isValidType = False
-            #                 break
-            #         if(typeFound == 'datetime' and types[columnNumber] == 'time'):
-            #             isValidType = True
-            #         if(typeFound == 'time' and types[columnNumber] == 'datetime'):
-            #             isValidType = True
-            #         if(typeFound == 'int' and types[columnNumber] == 'float'):
-            #             isValidType = True
-            #         if(typeFound == 'float' and types[columnNumber] == 'int'):
-            #             isValidType = True
-            #         if(typeFound == 'Decimal' and types[columnNumber] == 'int'):
-            #             isValidType = True
-            #         if(typeFound == 'Decimal' and types[columnNumber] == 'float'):
-            #             isValidType = True
-            #         if(typeFound == 'float' and types[columnNumber] == 'Decimal'):
-            #             isValidType = True
-            #         if(typeFound == 'str'):
-            #             isValidType = True
-            #         if(str(types[columnNumber]) == 'str'):
-            #             isValidType = True
-            #         if(not isValidType):
-            #             warnings.append("Column '" + names[columnNumber] + "' does not follow expected data type. Expected: '" + types[columnNumber] + "'. Found: '" + typeFound + "'")
-            #         columnNumber = columnNumber + 1
+            # TODO: if needed
+
         else:
             valid = False
         print(datetime.datetime.time(datetime.datetime.now()))
