@@ -10,4 +10,5 @@ There are also samples that can be found in the link. When the template is compl
 ### Method 2 - Use the Django Admin Page
 Insert values to the metadata tables by using the django admin page. Go to http://a4pgbizopsdev.svcs.entsvcs.net/admin
 
-How to use the Django admin page: https://github.hpe.com/TTT/uploader-tool/blob/master/setup-django-admin.md
+How to use the Django admin page:
+https://github.hpe.com/TTT/uploader-tool/blob/master/setup-django-admin.md
