@@ -1,9 +1,9 @@
 from manager.models import MTDTA_UPLOADER
 from manager.models import MTDTA_UPLOADER_PARAMS
 from manager.models import MTDTA_UPLOADER_COLS
-import sys
+from file_loader.models import *
 
-from manager.spreadsheet import SpreadSheetLogic
+import sys
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType 
@@ -178,9 +178,10 @@ class UploadLogic:
         ]
         return labels
 
-    #  Validate folder and file existence
+    #  Validate folder anFd file existence
     def validateFile(self, uploaderMetadata):
-        valid = True    
+        valid = True
+        fileFound = False
         errors = []
         returned = []
         
@@ -189,9 +190,14 @@ class UploadLogic:
         if(os.path.exists(folderPath)):
             files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
             if(files):
-                if(len(files) > 1):
+                for f in files:
+                    fileName, fileExtension = os.path.splitext(f)
+                    if(uploaderMetadata[4].lower() in fileName.lower()):
+                        fileFound = True
+                        break
+                if(not fileFound):
                     valid = False
-                    errors.append("More than one file was found in the source folder.")
+                    errors.append("No file with valid file name format found. " + "Expected: '" + str(uploaderMetadata[4]) + "'.")
             else:
                 valid = False
                 errors.append("No files were found in the source folder.")            
@@ -208,7 +214,10 @@ class UploadLogic:
     def getInputFile(self, uploaderMetadata):
         folderPath = "\\\%s%s\\New" % (uploaderMetadata[11], uploaderMetadata[3])
         files = [f for f in os.listdir(folderPath) if os.path.isfile(os.path.join(folderPath, f))]
-        fullPath = folderPath + "\\" + files[0]
+        for f in files:
+            fileName, fileExtension = os.path.splitext(f)
+            if(uploaderMetadata[4].lower() in fileName.lower()):
+                fullPath = folderPath + "\\" + f
         if(uploaderMetadata[5] == '.csv'):
             f = open(fullPath, 'rt')
         else:
@@ -216,7 +225,7 @@ class UploadLogic:
         return f
 
     #  Validate the metadata of the file
-    def validateFileMetadata(self, inputFile, uploaderMetadata, uploaderMetadataColumns):
+    def validateFileMetadata(self, inputFile, uploaderMetadata, uploaderMetadataColumns, uploadType):
         valid = True    
         errors = []
         returned = []
@@ -244,8 +253,11 @@ class UploadLogic:
             startRow = uploaderMetadata[15]
             i = 0
             if(fileExtension == '.csv'):
-                paramFile =TextIOWrapper(inputFile.file)
-                ws = csv.reader(paramFile)
+                if(uploadType == 'auto'):
+                    ws = csv.reader(inputFile)
+                elif(uploadType == 'assisted'):
+                    paramFile = TextIOWrapper(inputFile)
+                    ws = csv.reader(paramFile)
                 for row in ws:
                     if(i == startRow):
                         for cell in row:
@@ -253,8 +265,9 @@ class UploadLogic:
                             nCols = nCols + 1
                         break
                     i = i + 1
+                if(uploadType == 'assisted'):
+                    paramFile.detach()
                 readSuccess = True
-                paramFile.detach()
             else:
                 wb = load_workbook(inputFile, read_only=True)
                 sheetNames = wb.get_sheet_names()       # Sheet Names
@@ -278,7 +291,7 @@ class UploadLogic:
                     valid = False
                     errors.append("Invalid file sheet name. " + "Expected: '" + str(uploaderMetadata[6]) + "', Found: " + str(sheetNames[0]) + "'.")
 
-        # Validate File Metadata Columns
+        # Validate file Metadata Columns
         if(readSuccess):
             # Number of columns validation
             metaColNames = []
@@ -309,7 +322,7 @@ class UploadLogic:
                 # Format validation
                 # TODO: If needed
 
-        # Validate Target Table
+        # Validate target table
         targetSchemaName = uploaderMetadata[7]
         targetTableName = re.sub(r'[\W_]', '', uploaderMetadata[8])
         targetTable = None
@@ -319,14 +332,33 @@ class UploadLogic:
             valid = False
             errors.append("Invalid target table: " + "Found: '" + str(uploaderMetadata[8]) + "'.")
         
-        # Validate Target Schema
+        # Validate target schema
         targetSchemaName = uploaderMetadata[7]
         if(targetTable):
             try:
-                print(targetTable.objects.using(targetSchemaName).all())
+                targetTable.objects.using(targetSchemaName).all()
             except:
                 valid = False
                 errors.append("Invalid target schema: " + "Found: '" + str(uploaderMetadata[7]) + "'.")
+
+        # Validate target table column names
+        if(valid):
+            metaColNames = []
+            tableColNames = []
+            keys = []
+            for metaCol in uploaderMetadataColumns:
+                metaColNames.append(re.sub(r'[\W]', '_', metaCol[2]).lower())
+            values = targetTable.objects.using(targetSchemaName).values()
+            for t in values:
+                keys = t.keys()
+                for c in keys:
+                    tableColNames.append(c)
+                break
+            for metaCol in metaColNames:
+                if(not metaCol in tableColNames):
+                    valid = False
+                    errors.append("Invalid metadata column. Metadata column not found in target table: " + "Found: '" + str(metaCol) + "'.")
+                    break
 
         returned.append(None)
         returned.append(valid)

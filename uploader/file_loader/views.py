@@ -83,7 +83,7 @@ def auto_upload(request, uploader_name):
     # Validate file metadata
     if(valid):
         inputFile = logic.getInputFile(logic, uploaderMetadataRaw)
-        returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
+        returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'auto')
         valid = returned[1]
         ers = returned[2]
         for e in ers:
@@ -91,7 +91,7 @@ def auto_upload(request, uploader_name):
 
     # Insert after validations
     if(valid):
-        returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
+        returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'auto')
         valid = returned[1]
         ers = returned[2]
         for e in ers:
@@ -199,15 +199,9 @@ def upload(request, uploader_name):
         form = UploadFileForm(request.POST, request.FILES)
         inputFile = request.FILES['file']
         if form.is_valid():
-            ilogic = InsertLogic
-            returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
-            valid = returned[1]
-            ers = returned[2]
-            for e in ers:
-                errors.append(e)
             if(valid):
                 inputFile = request.FILES['file']
-                returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
+                returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'assisted')
                 valid = returned[1]
                 ers = returned[2]
                 for e in ers:
@@ -229,7 +223,7 @@ def upload(request, uploader_name):
         # Validate file metadata
         form = UploadFileForm(request.POST, request.FILES)
         inputFile = request.FILES['file']
-        returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns)
+        returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'assisted')
         valid = returned[1]
         ers = returned[2]
         for e in ers:

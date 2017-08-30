@@ -22,7 +22,7 @@ Use the information here as guide in filling up the fields: https://github.hpe.c
 4. Fill up the fields with the desired values and click ```SAVE``` when finished.
 5. Repeat the previous steps to add another row for another parameter.
 
-#### D. Add Parameters in Metadata Uploader Parameters Table
+#### D. Add Columns in Metadata Uploader Columns Table
 To add new columns for the new uploader, add new rows in the metadata uploader columns table using the following steps.
 
 Use the information here as guide in filling up the fields: https://github.hpe.com/TTT/uploader-tool/blob/master/metadata-tables.md
