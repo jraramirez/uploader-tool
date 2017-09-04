@@ -11,102 +11,96 @@
 </head>
 <body>
     {% if form %}
+    <div class="section">
     <h3>Assisted File Upload for {{ uploader_name }}</h3>
+    </div>
 
-    <p>Select the file</p>
-    <form action="" enctype="multipart/form-data"  method="post">
-        <table>
-            {{ form.as_table }}
-        </table>
-        {% csrf_token %}
-        <input type="submit" value="Validate Metadata" name="validate metadata">
-        {% if valid %}
-            <input type="submit" value="Upload" name="upload">
-        {% endif %}
-    </form>
+    <div class="section">
+        <p class="subfheader">Select the file</p>
+        <form action="" enctype="multipart/form-data"  method="post">
+            <table class="form-text">
+                {{ form.as_table }}
+            </table>
+            {% csrf_token %}
+            <input class="button-submit" type="submit" value="Validate Metadata" name="validate metadata">
+            <input class="button-submit" type="submit" value="Upload" name="upload">
+        </form>
+    </div>
+    
     {% else %}
-    <h3>Automated File Upload for {{ uploader_name }}</h3>
+    <div class="section">
+        <h3>Automated File Upload for {{ uploader_name }}</h3>
+    </div>
     {% endif %}
-
+    
     <!-- View of responses about the file-->
     {% if responses %}
+    <div class="section">
+        <p class="fheader">
+            Results
+        </p>
         {% for response in responses %}
-        <p>
+        <p class="response">
             {{ response }}
         </p>
         {% endfor %}
+    </div>
     {% endif %}
-
     <!-- View of file errors-->
     {% if errors %}
-        <p>
-            Errors:
+    <div class="section errors">
+        <p class="fheader">
+            Errors
         </p>
         <p>
             <ul>
             {% for error in errors %}
-            <li>{{ error }}</li>
+            <li class="error-bullet">{{ error }}</li>
             {% endfor %}
             </ul>
         </p>
+    </div>
     {% endif %}
 
     <!-- View of file warnings-->
     {% if warnings %}
-        <p>
-            Warnings:
+    <div class="section">
+        <p class="fheader">
+            Warnings
         </p>
         <p>
             <ul>
             {% for warning in warnings %}
-            <li>{{ warning }}</li>
+            <li class="warning-bullet">{{ warning }}</li>
             {% endfor %}
             </ul>
         </p>
+    </div>
     {% endif %}
 
     <!-- View of uploader metadata-->
     {% if uploaderMetadata %}
-        <p>
-            Uploader Metadata:
+    <div class="section">
+        <p class="fheader">
+            Uploader Metadata
         </p>
         <p>
         <table>
             {% for label, data in uploaderMetadata %}
             <tr>
-                <td>{{ label }}</td>
-                <td>{{ data }}</td>
+                <td class="label">{{ label }}: </td>
+                <td class="value">{{ data }}</td>
             </tr>
             {% endfor %}
         </table>
-    {% endif %}
-    
-    <!-- View of uploader metadata parameters -->
-    {% if uploaderMetadataParameters %}
-        <p>
-            Uploader Metadata Parameters:
-        </p>
-        <table>
-            <tr>
-                {% for label in uploaderMetadataParameterLabels %}
-                    <td>{{ label }}</td>
-                {% endfor %}
-            </tr>
-
-            {% for data in uploaderMetadataParameters %}
-            <tr>
-                {% for item in data %}
-                    <td>{{ item }}</td>
-                {% endfor %}    
-            </tr>
-            {% endfor %}
-        </table>
+    </div>
     {% endif %}
 
     <!-- View of uploader metadata columns -->
     {% if uploaderMetadataColumns %}
-        <p>
-            Uploader Metadata Columns:
+    <div class="section">
+        <p class="fheader">
+            Uploader Metadata Columns
         </p>
         <table>
             <tr>
@@ -118,11 +112,37 @@
             {% for data in uploaderMetadataColumns %}
                 <tr>
                     {% for item in data %}
-                        <td>{{ item }}</td>
+                        <td class="value">{{ item }}</td>
                     {% endfor %}    
                 </tr>
             {% endfor %}
         </table>
+    </div>
     {% endif %}
+
+    <!-- View of uploader metadata parameters -->
+    {% if uploaderMetadataParameters %}
+    <div class="section">
+        <p class="fheader">
+            Uploader Metadata Parameters
+        </p>
+        <table>
+            <tr>
+                {% for label in uploaderMetadataParameterLabels %}
+                    <td>{{ label }}</td>
+                {% endfor %}
+            </tr>
+
+            {% for data in uploaderMetadataParameters %}
+            <tr>
+                {% for item in data %}
+                    <td class="value">{{ item }}</td>
+                {% endfor %}    
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
 </body>
 </html>

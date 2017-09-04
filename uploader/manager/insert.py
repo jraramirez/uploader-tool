@@ -122,7 +122,7 @@ class InsertLogic:
                             r.append(str(cell.value))
                         else:
                             r.append(None)
-                        if(len(str(cell)) > int(maxLength[columnNumber])):
+                        if(len(str(cell.value)) > int(maxLength[columnNumber])):
                             exceedMaxLength = True
                             maxLengthFound = len(str(cell.value))
                             break
@@ -170,7 +170,7 @@ class InsertLogic:
                         name = name.lower()
                         values = targetTable.objects.using(targetSchemaName).values_list(name, flat=True)
                         for value in values:
-                            if(value == None):
+                            if(value == None or value == ''):
                                 hasBlank = True
                                 break
                         if(hasBlank and required[columnNumber] == 'Y'):
