@@ -244,6 +244,8 @@ class UploadLogic:
             errors.append("Invalid file type. " + "Expected: '" + str(uploaderMetadata[5]) + "', Found: " + str(fileExtension) + "'.")
 
         # File name validation
+        print(uploaderMetadata[4].lower())
+        print(fileName.lower())
         if(uploaderMetadata[4].lower() not in fileName.lower()):
             valid = False
             errors.append("Invalid file name format. " + "Expected: '" + str(uploaderMetadata[4]) + "'.")
@@ -342,23 +344,26 @@ class UploadLogic:
                 errors.append("Invalid target schema: " + "Found: '" + str(uploaderMetadata[7]) + "'.")
 
         # Validate target table column names
-        if(valid):
-            metaColNames = []
-            tableColNames = []
-            keys = []
-            for metaCol in uploaderMetadataColumns:
-                metaColNames.append(re.sub(r'[\W]', '_', metaCol[2]).lower())
-            values = targetTable.objects.using(targetSchemaName).values()
-            for t in values:
-                keys = t.keys()
-                for c in keys:
-                    tableColNames.append(c)
-                break
-            for metaCol in metaColNames:
-                if(not metaCol in tableColNames):
-                    valid = False
-                    errors.append("Invalid metadata column. Metadata column not found in target table: " + "Found: '" + str(metaCol) + "'.")
-                    break
+        # if(valid):
+        #     metaColNames = []
+        #     tableColNames = []
+        #     keys = []
+        #     for metaCol in uploaderMetadataColumns:
+        #         metaColNames.append(re.sub(r'[\W]', '_', metaCol[2]).lower())
+        #     values = targetTable.objects.using(targetSchemaName).values()
+        #     print(values)
+        #     for t in values:
+        #         keys = t.keys()
+        #         for c in keys:
+        #             tableColNames.append(c)
+        #         break
+        #     print(str(metaColNames))
+        #     print(str(tableColNames))
+        #     for metaCol in metaColNames:
+        #         if(not metaCol in tableColNames):
+        #             valid = False
+        #             errors.append("Invalid metadata column. Metadata column not found in target table: " + "Found: '" + str(metaCol) + "'.")
+        #             break
 
         returned.append(None)
         returned.append(valid)

@@ -36,6 +36,8 @@ DEBUG = True
 # ALLOWED_HOSTS = [server_ip_address, server_domain_name]
 ALLOWED_HOSTS = []
 
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -83,6 +85,8 @@ TEMPLATES = [
         },
     },
 ]
+
+PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 
 WSGI_APPLICATION = 'uploader.wsgi.application'
 
@@ -172,9 +176,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = (
-   '../static',
-)
+STATIC_ROOT = os.path.join(PROJECT_DIR, '../../static/')
+
+# STATICFILES_DIRS = (
+#    '../static',
+# )
 
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_SAVE_EVERY_REQUEST = True

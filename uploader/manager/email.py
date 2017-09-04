@@ -15,8 +15,11 @@ class EmailLogic:
         returned = []
         status = ""
         errorList = ""
+        errorListHTML = ""
         warningList = ""
+        warningListHTML = ""
         responseList = ""
+        responseListHTML = ""
 
         sender = uploaderMetadataRaw[12]
         recipient = uploaderMetadataRaw[13]
@@ -41,22 +44,35 @@ class EmailLogic:
             warningList = warningList + "\n - " + w
         for r in responses:
             responseList = responseList + "\n - " + r
-        text = responses[0] + \
-            "\n\nWarnings: " + \
-            warningList + \
-            "\n\nErrors: " + \
-            errorList + \
-            "\n\nOthers: " + \
-            responseList
-        html = ""
+        text = responses[0]
+        if(warnings):
+            text = text + "\n\nWarnings: " + warningList
+        if(errors):
+            text = text + "\n\nErrors: " + errorList        
+            
+        for e in errors:
+            errorListHTML = errorListHTML + "<li>" + e + "</li>"
+        for w in warnings:
+            warningListHTML = warningListHTML + "<li>" + w + "</li>"
+
+        html = """<html><head></head><body><font face="Arial">
+        """ + \
+        "<p>" + responses[0] + "</p>"
+        
+        if(warnings):
+            html = html + "<p><b>Warnings:</b></p><ul>" + errorListHTML + "</ul>"
+        if(errors):
+            html = html + "<p><b>Errors:</b></p><ul>" + warningListHTML + "</ul>"
+
+        html = html + """</font></body></html>"""
 
         # Record the MIME types of both parts - text/plain and text/html.
         part1 = MIMEText(text, 'plain')
-        # part2 = MIMEText(html, 'html')
+        part2 = MIMEText(html, 'html')
 
         # Attach parts into message container.
         msg.attach(part1)
-        # msg.attach(part2)
+        msg.attach(part2)
 
         # Send the message via SMTP server.
         try:
