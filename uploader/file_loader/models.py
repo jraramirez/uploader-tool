@@ -40,8 +40,8 @@ class TmpTransitionBw(models.Model):
 
 class StgItoPdoEmpList(models.Model):
     id = models.BigIntegerField(primary_key=True)
-    month = models.CharField(db_column='Month', max_length=255)  # Field name made lowercase.
-    employee_id = models.CharField(db_column='Employee ID', max_length=255)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    month = models.CharField(db_column='Month', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    employee_id = models.CharField(db_column='Employee ID', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     region = models.CharField(db_column='Region', max_length=255, blank=True, null=True)  # Field name made lowercase.
     pm_name = models.CharField(db_column='PM Name', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
     file_name = models.CharField(max_length=255, blank=True, null=True)

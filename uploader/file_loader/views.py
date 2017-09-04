@@ -201,12 +201,18 @@ def upload(request, uploader_name):
         if form.is_valid():
             if(valid):
                 inputFile = request.FILES['file']
-                returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'assisted')
+                returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'auto')
                 valid = returned[1]
                 ers = returned[2]
                 for e in ers:
                     errors.append(e)
-                warnings = returned[3]
+                if(valid):
+                    returned = ilogic.properInsert(ilogic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'assisted')
+                    valid = returned[1]
+                    ers = returned[2]
+                    for e in ers:
+                        errors.append(e)
+                    warnings = returned[3]
         else:
             errors.append('There was an error in uploading the file. Make sure that the file has passed validation.')
         if(valid and warnings):
