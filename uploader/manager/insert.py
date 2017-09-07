@@ -135,6 +135,7 @@ class InsertLogic:
                         for j in range(len(row), nCols):
                             r.append(None)
 
+                        # TODO: file name and file date column validation
                         # Add file name and file date data
                         r.append(fileName)
                         r.append(fileDate)
@@ -148,14 +149,14 @@ class InsertLogic:
             if(valid):        
                 print("Insert to database")
                 print(datetime.datetime.time(datetime.datetime.now()))
-                with transaction.atomic():
-                    targetTable.objects.using(targetSchemaName).all().delete()
-                    try:
+                try:
+                    with transaction.atomic():
+                        targetTable.objects.using(targetSchemaName).all().delete()
                         for r in all:
                             t = targetTable(*r)
                             t.save(using=targetSchemaName)
-                    except():
-                        errors.append("Insert to database failed. Possible issue: values of file exceeds maximum allowed length.")
+                except():
+                    errors.append("Insert to database failed. Possible issue: values of file exceeds maximum allowed length.")
 
             # Blank values per required column validation
             print("Blank values validation")
@@ -188,3 +189,20 @@ class InsertLogic:
         returned.append(errors)
         returned.append(warnings)
         return returned
+
+    # Truncate table
+    def truncateTable(self, uploaderMetadata):
+        targetSchemaName = uploaderMetadata[7]
+        targetTableName = re.sub(r'[\W_]', '', uploaderMetadata[8])
+        targetTable = apps.get_model('file_loader', targetTableName)
+
+        try:
+            targetTable = apps.get_model('file_loader', targetTableName)
+        except():
+            valid = False
+        if(targetTable):
+            try:
+                targetTable.objects.using(targetSchemaName).all().delete()
+                print("!")
+            except:
+                valid = False

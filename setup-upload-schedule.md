@@ -1,8 +1,8 @@
 ## Setting Up Schedule of File Upload
 
-The SQL Server Agent can use the file loader bot to setup file uploads with any desired schedule. The uploads are treated as Jobs using this technology.
+The **SQL Server Agent** can use the file loader bot to setup file uploads with any desired schedule. The uploads are treated as **Jobs** using this technology.
 
-#### Setup Using Microsoft SQL Server Management Studio
+### Setup Using Microsoft SQL Server Management Studio
 1. After connecting to the server, look for ```SQL Server Agent```
 
     Right click ```SQL Server Agent``` and select ```New```, then ```Job...```

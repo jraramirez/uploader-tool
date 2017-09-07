@@ -18,6 +18,12 @@ In order to operate properly, the file loader bot will utilize database tables c
 #### Detailed View
 ![Detailed](https://github.hpe.com/TTT/uploader-tool/blob/master/images/detailed.png)
 
+### File Loader Bot Features
+
+* Scheduled file upload to databases using SQL Server Agent jobs
+* Setup of file upload metadata using the File Loader Administration Page
+* Email notifications for all the file upload activities
+
 ### [About Metadata Tables](https://github.hpe.com/TTT/uploader-tool/blob/master/metadata-tables.md)
 
 ### [Setting Up a New Uploader](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-new-uploader.md)
@@ -26,9 +32,14 @@ In order to operate properly, the file loader bot will utilize database tables c
 
 ### [Setting Up the Metadata Tables](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-metadata-tables.md)
 
-### [About Administrator Page](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-django-admin.md)
+### [Scheduling an Automated Upload Using SQL Server Agent](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-upload-schedule.md)
 
-### File Loader Bot Features
+### [About File Loader Administrator Page](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-django-admin.md)
+
+### [Deployment](https://github.hpe.com/TTT/uploader-tool/blob/master/deployment.md)
+
+
+### Other Features
 
 The bot will always provide useful messages/notifications if file upload activities have something to report or if there are errors. The possible reports/errors are enumerated below.
 * The bot can verify if the source path where the input file is expected by the upload exists.
@@ -66,10 +77,6 @@ The bot will always provide useful messages/notifications if file upload activit
 * Check that the file is reasonable depending on fields from the file and the destination table.
 * Check that the file is reasonable depending on file size compared to the file size of the previous files that were successfully loaded.
 * The bot will send an email to the support team if the load was successful or not.
-
-### Deployment
-
-https://github.hpe.com/TTT/uploader-tool/blob/master/deployment.md
 
 ### Architecture
 #### Technologies:

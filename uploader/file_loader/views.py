@@ -104,6 +104,7 @@ def auto_upload(request, uploader_name):
         responses.append("File upload successful.")
     else:
         responses.append("File upload have errors.")
+        ilogic.truncateTable(ilogic, uploaderMetadataRaw)
 
     # Move file after processing
     if(inputFile):
@@ -201,7 +202,7 @@ def upload(request, uploader_name):
         if form.is_valid():
             if(valid):
                 inputFile = request.FILES['file']
-                returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'auto')
+                returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'assisted')
                 valid = returned[1]
                 ers = returned[2]
                 for e in ers:
@@ -221,6 +222,7 @@ def upload(request, uploader_name):
             responses.append("File upload successful.")
         else:
             responses.append("File upload have errors.")
+            ilogic.truncateTable(ilogic, uploaderMetadataRaw)
         if(inputFile):
           inputFile.close()
 

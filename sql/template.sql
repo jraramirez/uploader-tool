@@ -71,7 +71,7 @@ INSERT INTO [dbo].[mtdta_uploader_cols]
            ,[last_update_uid]
            ,[last_update])
      VALUES
-           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name')    '',   '',   'N',  255,  'None',     'None',     'user@hpe.com',   GETDATE()),
+           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'),    '',   '',   'N',  255,  'None',     'None',     'user@hpe.com',   GETDATE()),
 GO
 
 

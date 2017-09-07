@@ -244,8 +244,6 @@ class UploadLogic:
             errors.append("Invalid file type. " + "Expected: '" + str(uploaderMetadata[5]) + "', Found: " + str(fileExtension) + "'.")
 
         # File name validation
-        print(uploaderMetadata[4].lower())
-        print(fileName.lower())
         if(uploaderMetadata[4].lower() not in fileName.lower()):
             valid = False
             errors.append("Invalid file name format. " + "Expected: '" + str(uploaderMetadata[4]) + "'.")
@@ -344,6 +342,7 @@ class UploadLogic:
                 errors.append("Invalid target schema: " + "Found: '" + str(uploaderMetadata[7]) + "'.")
 
         # Validate target table column names
+        # TODO: if needed
         # if(valid):
         #     metaColNames = []
         #     tableColNames = []

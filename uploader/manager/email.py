@@ -60,9 +60,9 @@ class EmailLogic:
         "<p>" + responses[0] + "</p>"
         
         if(warnings):
-            html = html + "<p><b>Warnings:</b></p><ul>" + errorListHTML + "</ul>"
+            html = html + "<p><b>Warnings:</b></p><ul>" + warningListHTML + "</ul>"
         if(errors):
-            html = html + "<p><b>Errors:</b></p><ul>" + warningListHTML + "</ul>"
+            html = html + "<p><b>Errors:</b></p><ul>" + errorListHTML + "</ul>"
 
         html = html + """</font></body></html>"""
 
