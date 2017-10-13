@@ -17,7 +17,7 @@ server_ip_address = '16.179.110.132'
 server_domain_name = 'a4pgbizopsdev.svcs.entsvcs.net'
 
 # PRO SERVER
-# server_ip_address = '16.179.109.62'
+# server_ip_address = 'a4pgbizops'
 # server_domain_name = 'a4pgbizops.svcs.entsvcs.net'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -47,17 +47,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'djangosecure',
+    # 'djangosecure',
     'file_loader',
     'manager'
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.PersistentRemoteUserMiddelware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -95,6 +96,7 @@ WSGI_APPLICATION = 'uploader.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
+    # DEV Databases
     'default': {
         'NAME': 'FPD',
         'ENGINE': 'sql_server.pyodbc',
@@ -135,6 +137,37 @@ DATABASES = {
             'driver': 'SQL Server Native Client 11.0',
         },
     }
+    # PRO Databases
+    # 'default': {
+    #     'NAME': 'PG_BIZOPS',
+    #     'ENGINE': 'sql_server.pyodbc',
+    #     'HOST': server_ip_address,
+    #     'ATOMIC_REQUESTS': True,
+    #     'AUTOCOMMIT': True,
+    #     'OPTIONS': {
+    #         'driver': 'SQL Server Native Client 11.0',
+    #     },
+    # },
+    # 'PG_BIZOPS': {
+    #     'NAME': 'PG_BIZOPS',
+    #     'ENGINE': 'sql_server.pyodbc',
+    #     'HOST': server_ip_address,
+    #     'ATOMIC_REQUESTS': True,
+    #     'AUTOCOMMIT': True,
+    #     'OPTIONS': {
+    #         'driver': 'SQL Server Native Client 11.0',
+    #     },
+    # },
+    # 'PG_PROJECTS': {
+    #     'NAME': 'PG_PROJECTS',
+    #     'ENGINE': 'sql_server.pyodbc',
+    #     'HOST': server_ip_address,
+    #     'ATOMIC_REQUESTS': True,
+    #     'AUTOCOMMIT': True,
+    #     'OPTIONS': {
+    #         'driver': 'SQL Server Native Client 11.0',
+    #     },
+    # },
 }
 
 

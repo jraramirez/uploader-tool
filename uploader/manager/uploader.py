@@ -1,5 +1,4 @@
 from manager.models import MTDTA_UPLOADER
-from manager.models import MTDTA_UPLOADER_PARAMS
 from manager.models import MTDTA_UPLOADER_COLS
 from file_loader.models import *
 
@@ -50,6 +49,7 @@ class UploadLogic:
                     uploaderMetadata[0].email_recipient,
                     uploaderMetadata[0].email_cc,
                     uploaderMetadata[0].start_row,
+                    uploaderMetadata[0].delimiter,
                 ]
             else:
                 errors.append("Uploader name not found: '" + uploader_name + "'.")
@@ -81,39 +81,40 @@ class UploadLogic:
             'Email Recipient',
             'Email CC',
             'Start Row',
+            'Delimiter',
         ]
         return labels
 
     # Get the uploader metadata parameters from database
-    def getUploaderMetadataParameters(self, uploader_name):
-        valid = True
-        returned = []
-        errors = []
-        uploaderMetadata = []
-        uploaderMetadataParameters = []
-        if(MTDTA_UPLOADER_PARAMS.objects.all().exists()):
-            uploader_id = MTDTA_UPLOADER.objects.filter(name=uploader_name)[0].uploader
-            meta_set = MTDTA_UPLOADER_PARAMS.objects.filter(uploader_id=uploader_id)
-            for meta in meta_set.iterator():
-                uploaderMetadataParameters.append([
-                    meta.uploader_id, 
-                    meta.parameter, 
-                    meta.name, 
-                    meta.description,
-                    meta.data_type,
-                    meta.is_required,
-                    meta.default_value,
-                    meta.format,
-                    meta.last_update_uid,
-                    meta.last_update,
-                ])
-        else:
-            errors.append("Uploader parameters is not set up properly.")
-            valid = False
-        returned.append(uploaderMetadataParameters)
-        returned.append(valid)
-        returned.append(errors)
-        return returned
+    # def getUploaderMetadataParameters(self, uploader_name):
+    #     valid = True
+    #     returned = []
+    #     errors = []
+    #     uploaderMetadata = []
+    #     uploaderMetadataParameters = []
+    #     if(MTDTA_UPLOADER_PARAMS.objects.all().exists()):
+    #         uploader_id = MTDTA_UPLOADER.objects.filter(name=uploader_name)[0].uploader
+    #         meta_set = MTDTA_UPLOADER_PARAMS.objects.filter(uploader_id=uploader_id)
+    #         for meta in meta_set.iterator():
+    #             uploaderMetadataParameters.append([
+    #                 meta.uploader_id, 
+    #                 meta.parameter, 
+    #                 meta.name, 
+    #                 meta.description,
+    #                 meta.data_type,
+    #                 meta.is_required,
+    #                 meta.default_value,
+    #                 meta.format,
+    #                 meta.last_update_uid,
+    #                 meta.last_update,
+    #             ])
+    #     else:
+    #         errors.append("Uploader parameters is not set up properly.")
+    #         valid = False
+    #     returned.append(uploaderMetadataParameters)
+    #     returned.append(valid)
+    #     returned.append(errors)
+    #     return returned
 
     # Get the uploader metadata parameter labels from database
     def getUploaderMetadataParameterLabels(self):
@@ -178,10 +179,11 @@ class UploadLogic:
         ]
         return labels
 
-    #  Validate folder anFd file existence
+    #  Validate folder and file existence
     def validateFile(self, uploaderMetadata):
         valid = True
         fileFound = False
+        sendEmail = True
         errors = []
         returned = []
         
@@ -198,9 +200,11 @@ class UploadLogic:
                 if(not fileFound):
                     valid = False
                     errors.append("No file with valid file name format found. " + "Expected: '" + str(uploaderMetadata[4]) + "'.")
+                    sendEmail = False
             else:
                 valid = False
                 errors.append("No files were found in the source folder.")            
+                sendEmail = False
         else:
             valid = False
             errors.append("Invalid source folder: " + "Expected: '" + folderPath + "'.")
@@ -208,6 +212,7 @@ class UploadLogic:
         returned.append(None)
         returned.append(valid)
         returned.append(errors)
+        returned.append(sendEmail)
         return returned
 
     # Get the file from the source path
@@ -218,8 +223,8 @@ class UploadLogic:
             fileName, fileExtension = os.path.splitext(f)
             if(uploaderMetadata[4].lower() in fileName.lower()):
                 fullPath = folderPath + "\\" + f
-        if(uploaderMetadata[5] == '.csv'):
-            f = open(fullPath, 'rt')
+        if(uploaderMetadata[5].lower() == '.csv'):
+            f = open(fullPath, 'rt', encoding="utf8")
         else:
             f = open(fullPath, 'rb')
         return f
@@ -241,33 +246,43 @@ class UploadLogic:
         # File type validation
         if(not fileExtension.lower() == uploaderMetadata[5].lower()):
             valid = False
-            errors.append("Invalid file type. " + "Expected: '" + str(uploaderMetadata[5]) + "', Found: " + str(fileExtension) + "'.")
+            errors.append("Invalid file type. " + "Expected: '" + str(uploaderMetadata[5].lower()) + "', Found: " + str(fileExtension) + "'.")
 
         # File name validation
         if(uploaderMetadata[4].lower() not in fileName.lower()):
             valid = False
             errors.append("Invalid file name format. " + "Expected: '" + str(uploaderMetadata[4]) + "'.")
         
+        # File name validation
+        if(fileExtension.lower() == '.csv' and len(uploaderMetadata[16]) > 1):
+            valid = False
+            errors.append("Invalid delimiter. it must be a 1-character string.")
+                
         # Sheet name validation
         if(valid):
             startRow = uploaderMetadata[15]
             i = 0
-            if(fileExtension == '.csv'):
+            if(fileExtension.lower() == '.csv'):
                 if(uploadType == 'auto'):
-                    ws = csv.reader(inputFile)
+                    ws = csv.reader(inputFile, delimiter=uploaderMetadata[16])
                 elif(uploadType == 'assisted'):
                     paramFile = TextIOWrapper(inputFile)
-                    ws = csv.reader(paramFile)
+                    ws = csv.reader(paramFile, delimiter=uploaderMetadata[16])
+            # try:
                 for row in ws:
                     if(i == startRow):
                         for cell in row:
-                            colNames.append(cell)
-                            nCols = nCols + 1
+                            if(not cell == None ):
+                                colNames.append(cell)
+                                nCols = nCols + 1
                         break
                     i = i + 1
+                readSuccess = True
+            # except Exception:
+            #     errors.append("Some values found in the file are not encoded in utf-8.")
+            #     valid = False
                 if(uploadType == 'assisted'):
                     paramFile.detach()
-                readSuccess = True
             else:
                 wb = load_workbook(inputFile, read_only=True)
                 sheetNames = wb.get_sheet_names()       # Sheet Names
@@ -282,8 +297,9 @@ class UploadLogic:
                     for row in ws.rows:
                         if(i == startRow):
                             for cell in row:
-                                colNames.append(cell.value)
-                                nCols = nCols + 1
+                                if(not cell.value == None ):
+                                    colNames.append(cell.value)
+                                    nCols = nCols + 1
                             break
                         i = i + 1
                     readSuccess = True
@@ -328,16 +344,18 @@ class UploadLogic:
         targetTable = None
         try:
             targetTable = apps.get_model('file_loader', targetTableName)
-        except():
+            print(str(targetTable.objects.using(targetSchemaName).all()))   
+        except Exception:
             valid = False
-            errors.append("Invalid target table: " + "Found: '" + str(uploaderMetadata[8]) + "'.")
+            errors.append("Invalid target table. Check if the target table exists. " + "Found: '" + str(uploaderMetadata[8]) + "'.")
         
+
         # Validate target schema
         targetSchemaName = uploaderMetadata[7]
         if(targetTable):
             try:
                 targetTable.objects.using(targetSchemaName).all()
-            except:
+            except Exception:
                 valid = False
                 errors.append("Invalid target schema: " + "Found: '" + str(uploaderMetadata[7]) + "'.")
 
@@ -393,9 +411,13 @@ class UploadLogic:
                 destinationPath = destinationPath + "\\" + datetime.datetime.now().strftime("%Y%m%d%H%M%S - ") + files[0]
                 sourcePath = folderPath + "\\" + files[0]
                 copyfile(sourcePath, destinationPath)
-                os.remove(sourcePath)
-                with contextlib.suppress(OSError):
-                    os.unlink(sourcePath)
+                try:
+                    os.remove(sourcePath)
+                    with contextlib.suppress(OSError):
+                        os.unlink(sourcePath)
+                except Exception:
+                    valid = False
+                    errors.append("The process cannot access the input file because it is being used by another process.")
 
         returned.append(None)
         returned.append(valid)

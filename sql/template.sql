@@ -11,6 +11,7 @@ INSERT INTO [dbo].[mtdta_uploader]
            ,[file_name]
            ,[file_type]
            ,[sheet_name]
+           ,[delimiter]
            ,[start_row]
            ,[target_schema]
            ,[target_table]
@@ -20,56 +21,34 @@ INSERT INTO [dbo].[mtdta_uploader]
            ,[last_update_uid]
            ,[last_update])
      VALUES
-           ('uploader-name'
-           ,'File upload of ...'
-           ,'\pg_bizops\FILE_UPLOADER\[SOURCE FOLDER NAME]'
-           ,'16.179.110.132'
-           ,'Data'
-           ,'.xlsx'
-           ,'Sheet1'
-           , 0
-           ,'FPD'
-           ,'TMP_TARGET_TABLE'
-           ,'pg_bizopssupport@hpe.com'
-           ,'pg_bizopssupport@hpe.com'
-           ,'pg_bizopssupport@hpe.com'
-           ,'username@hpe.com'
-           ,GETDATE())
-GO
-
-INSERT INTO [dbo].[mtdta_uploader_params]
-           ([uploader_id]
-           ,[parameter]
-           ,[name]
-           ,[description]
-           ,[data_type]
-           ,[is_required]
-           ,[default_value]
-           ,[format]
-           ,[last_update_uid]
-           ,[last_update])
-     VALUES
-           ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name')
-           ,'period date'
-           ,'description'
-           ,'datetime'
-           ,'Y'
-           ,'01-01-2017'
-           ,'mm-dd-yyyy'
-           ,'username@hpe.com'
-           ,GETDATE())
+           ('uploader-name',
+            'File upload of ...',
+            '\pg_bizops\FILE_UPLOADER\[FOLDER NAME]',
+            '16.179.109.62',
+            'FILE NAME',
+            '.csv',
+            'Sheet1',
+            ',',
+            0,
+            'PG_BIZOPS',
+            'STG_TARGET_TABLE_NAME',
+            'timetracking_techsupport@hpe.com',
+            'timetracking_techsupport@hpe.com',
+            'user@hpe.com',
+            'user@hpe.com',
+            GETDATE())
 GO
 
 INSERT INTO [dbo].[mtdta_uploader_cols]
-           ([uploader_id]
-           ,[name]
-           ,[description]
-           ,[is_required]
-           ,[max_length]
-           ,[default]
-           ,[format]
-           ,[last_update_uid]
-           ,[last_update])
+            ([uploader_id],
+            [name],
+            [description],
+            [is_required],
+            [max_length],
+            [default],
+            [format],
+            [last_update_uid],
+            [last_update])
      VALUES
            ((select uploader from [dbo].[mtdta_uploader] where name = 'uploader-name'),    '',   '',   'N',  255,  'None',     'None',     'user@hpe.com',   GETDATE()),
 GO

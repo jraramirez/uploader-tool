@@ -1,12 +1,15 @@
 from manager.models import MTDTA_UPLOADER
-from manager.models import MTDTA_UPLOADER_PARAMS
 from manager.models import MTDTA_UPLOADER_COLS
+from manager.models import UTL_FILE_LOADER_BOT_LOGS
+
+from django.core.exceptions import FieldError
 
 from file_loader.models import *
 
 from manager.uploader import UploadLogic
 
 from django.apps import apps
+from django.utils import timezone
 
 import datetime
 import csv
@@ -55,49 +58,54 @@ class InsertLogic:
             print(datetime.datetime.time(datetime.datetime.now()))
 
             # Reading for csv files
-            if(uploaderMetadata[5] == '.csv'):
+            if(uploaderMetadata[5].lower() == '.csv'):
                 if(uploadType == 'auto'):
-                    ws = csv.reader(inputFile)
+                    ws = csv.reader(inputFile, delimiter=uploaderMetadata[16])
                 # TODO: Assisted upload of csv files is broken
                 elif(uploadType == 'assisted'):
                     paramFile = TextIOWrapper(inputFile)
-                    ws = csv.reader(paramFile)
+                    ws = csv.reader(paramFile, delimiter=uploaderMetadata[16])
                 nCols = len(uploaderMetadataColumns)
                 i = 0
                 all = []
-                for row in ws:
-                    r = []
-                    j = 0
-                    columnNumber = 1
-                    exceedMaxLength = False
-                    for cell in row:
-                        if(cell != None):
-                            r.append(str(cell))
-                        else:
-                            r.append(None)
-                        if(len(str(cell)) > int(maxLength[columnNumber])):
-                            exceedMaxLength = True
-                            maxLengthFound = len(str(cell))
+                try:
+                    for row in ws:
+                        r = []
+                        j = 0
+                        columnNumber = 1
+                        exceedMaxLength = False
+                        for cell in row:
+                            if(cell != None and columnNumber <= nCols):
+                                r.append(str(cell))
+                                if(len(str(cell)) > int(maxLength[columnNumber])):
+                                    exceedMaxLength = True
+                                    maxLengthFound = len(str(cell))
+                                    break
+                            elif(cell.value == None and columnNumber <= nCols):
+                                r.append(None)
+                            columnNumber = columnNumber + 1
+                        if(exceedMaxLength):
+                            errors.append("Some values of file column '" + names[columnNumber] + "' exceeds maximum length. Expected: '" + str(maxLength[columnNumber]) + "', Found: " + str(maxLengthFound) + "'.")
+                            valid = False
                             break
-                        columnNumber = columnNumber + 1
-                    if(exceedMaxLength):
-                        errors.append("Some values of file column '" + names[columnNumber] + "' exceeds maximum length. Expected: '" + str(maxLength[columnNumber]) + "', Found: " + str(maxLengthFound) + "'.")
-                        valid = False
-                        break
-                    else:
-                        for j in range(len(row), nCols):
-                            r.append(None)
-                            
-                        # Add file name and file date data
-                        r.append(fileName)
-                        r.append(fileDate)
-                        if(len(r) > 0):
-                            if(i > startRow):
+                        else:
+                            for j in range(len(row), nCols):
+                                r.append(None)
+                                
+                            # Add file name and file date data
+                            r.append(fileName)
+                            r.append(fileDate)
+                            if(len(r) > 0):
+                            # if(i > startRow):
                                 r.insert(0,i)
                                 all.append(r)
-                    i = i + 1
+                        i = i + 1
+                except Exception:
+                    errors.append("Some values found in the file are not encoded in utf-8.")
+                    valid = False
                 if(uploadType == 'assisted'):
                     paramFile.detach()
+                    
             # Reading for xls and xlsx files
             else:
                 wb = load_workbook(inputFile, read_only=True)
@@ -120,12 +128,12 @@ class InsertLogic:
                     for cell in row:
                         if(cell.value != None):
                             r.append(str(cell.value))
-                        else:
+                            if(len(str(cell.value)) > int(maxLength[columnNumber])):
+                                exceedMaxLength = True
+                                maxLengthFound = len(str(cell.value))
+                                break
+                        elif(cell.value == None and columnNumber <= nCols):
                             r.append(None)
-                        if(len(str(cell.value)) > int(maxLength[columnNumber])):
-                            exceedMaxLength = True
-                            maxLengthFound = len(str(cell.value))
-                            break
                         columnNumber = columnNumber + 1
                     if(exceedMaxLength):
                         errors.append("Some values of file column '" + names[columnNumber] + "' exceeds maximum length. Expected: '" + str(maxLength[columnNumber]) + "', Found: " + str(maxLengthFound) + "'.")
@@ -144,7 +152,6 @@ class InsertLogic:
                                 r.insert(0,i)
                                 all.append(r)
                     i = i + 1
-
             # Insert to database
             if(valid):        
                 print("Insert to database")
@@ -155,32 +162,33 @@ class InsertLogic:
                         for r in all:
                             t = targetTable(*r)
                             t.save(using=targetSchemaName)
-                except():
-                    errors.append("Insert to database failed. Possible issue: values of file exceeds maximum allowed length.")
+                except Exception:
+                    errors.append("Insert to database failed. Possible issues: (1) Values on file exceeds maximum allowed length; (2) Required columns does not exist in the target table: [id], [file_name], [file_date]; (3) File number of columns is not equal to target table number of columns")
 
             # Blank values per required column validation
-            print("Blank values validation")
-            print(datetime.datetime.time(datetime.datetime.now()))
-            if(valid):
-                columnNumber = 0
-                for name in names:
-                    values = []
-                    if(required[columnNumber] == 'Y'):
-                        hasBlank = False
-                        name = re.sub(r'[\W ]', '_', name)
-                        name = name.lower()
-                        values = targetTable.objects.using(targetSchemaName).values_list(name, flat=True)
-                        for value in values:
-                            if(value == None or value == ''):
-                                hasBlank = True
-                                break
-                        if(hasBlank and required[columnNumber] == 'Y'):
-                            warnings.append("Column has blank values: '" + names[columnNumber] + "'. This column is required.")
-                    columnNumber = columnNumber + 1
+            # print("Blank values validation")
+            # print(datetime.datetime.time(datetime.datetime.now()))
+            # if(valid):
+            #     columnNumber = 0
+            #     for name in names:
+            #         values = []
+            #         if(required[columnNumber] == 'Y'):
+            #             hasBlank = False
+            #             name = re.sub(r'[\W ]', '_', name)
+            #             name = name.lower()
+            #             try:
+            #                 values = targetTable.objects.using(targetSchemaName).values_list(name, flat=True)   
+            #                 for value in values:
+            #                     if(value == None or value == ''):
+            #                         hasBlank = True
+            #                         break
+            #                 if(hasBlank and required[columnNumber] == 'Y'):
+            #                     warnings.append("Column has blank values: '" + names[columnNumber] + "'. This column is required.")
+            #             except Exception:
+            #                 valid = False
+            #                 errors.append("Field error encountered. Some column names are invalid due to special characters.")
+            #         columnNumber = columnNumber + 1
             
-            # Data type validation
-            # TODO: if needed
-
         else:
             valid = False
         print(datetime.datetime.time(datetime.datetime.now()))
@@ -198,11 +206,50 @@ class InsertLogic:
 
         try:
             targetTable = apps.get_model('file_loader', targetTableName)
-        except():
+        except Exception:
             valid = False
         if(targetTable):
             try:
                 targetTable.objects.using(targetSchemaName).all().delete()
-                print("!")
-            except:
+            except Exception:
                 valid = False
+
+    def insertLog(uploaderMetadataRaw, fileFullPath, errors, warnings, sendEmail, truncate, startTimeStamp):
+        returned = []
+        endTimeStamp = timezone.now()
+        status = None
+        errs = None
+        warns = None
+
+        if(errors):
+            status = 'Failure'
+            errs = str(errors)
+        else:
+            status = 'Success'
+            errs = None
+            if(warnings):
+                warns = str(warnings)
+            else:
+                warns = None
+
+        # try:
+        with transaction.atomic():
+            t = UTL_FILE_LOADER_BOT_LOGS(
+                uploader_name = uploaderMetadataRaw[1], 
+                last_update_uid = uploaderMetadataRaw[9], 
+                update_start_timestamp = startTimeStamp,
+                update_end_timestamp = endTimeStamp,
+                status = status,
+                error_details = errs,
+                warning_details = warns,
+                input_file = fileFullPath,
+                email_sent = sendEmail, 
+                table_truncated = truncate
+            )
+            t.save()
+        # except Exception:
+        #     errors.append("Insert to log table failed. Possible issues: (1) Table UTL_FILE_LOADER_BOT_LOGS not in the database; ")
+
+        returned.append(errors)
+
+        return returned

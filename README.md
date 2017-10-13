@@ -2,7 +2,7 @@
 
 DEV Version: http://a4pgbizopsdev.svcs.entsvcs.net/uploader
 
-PROD Version:
+PROD Version: http://a4pgbizops.svcs.entsvcs.net/uploader
 
 ### About File Loader Bot
 
@@ -23,6 +23,7 @@ In order to operate properly, the file loader bot will utilize database tables c
 * Scheduled file upload to databases using SQL Server Agent jobs
 * Setup of file upload metadata using the File Loader Administration Page
 * Email notifications for all the file upload activities
+* Logging of all the file upload activities into a database table
 
 ### [About Metadata Tables](https://github.hpe.com/TTT/uploader-tool/blob/master/metadata-tables.md)
 
@@ -36,8 +37,9 @@ In order to operate properly, the file loader bot will utilize database tables c
 
 ### [About File Loader Administrator Page](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-django-admin.md)
 
-### [Deployment](https://github.hpe.com/TTT/uploader-tool/blob/master/deployment.md)
+### [Setting Up settings.py](https://github.hpe.com/TTT/uploader-tool/blob/master/setup-settings-py.md)
 
+### [Deployment](https://github.hpe.com/TTT/uploader-tool/blob/master/deployment.md)
 
 ### Other Features
 
@@ -51,24 +53,25 @@ The bot will always provide useful messages/notifications if file upload activit
 * The bot can verify if the source fields expected has extra fields.
 * The bot can verify if the specified target table is existing in the database schema.
 * The bot can verify if the specified database schema is exsisting.
-* The bot can verify if there are null records in the source file that is expected to have a value.
 * The bot can handle data in the file with commas for CSV files.
 * The bot is able to transfer the file to the archive folder if the file loading is successful.
 * The bot is able to transfer the file to the error folder if the file loading is unsuccessful.
-
-
-### New
-
 * Start row metadata – Uploader setup can now set the start row from the file where the uploader will start reading data
 * Max length metadata – Uploader setup can now set the maximum length of column values
 * Email sender/recipient/cc metadata – Uploader setup can now set the email of the sender/recipient/cc of the notifications
-* Max length of values validation – Validates a column if it includes values that exceed the maximum allowed length
 * Recognition of target tables – Improved method of recognizing new/updated target tables. List of target tables are no longer maintained in a file. They are now maintained in the metadata tables
 * Detect input file based on the file name format
 * Saving of the upload file name and file date information to the target table
 * Validation of target table column names
 * File loader bot can now be scheduled using SQL Server Agent jobs
 
+### New Features
+* Logging of all uploads into ```[FPD].[UTL_FILE_LOADER_BOT_LOGS]```
+
+### Removed Features
+* Max length of values validation – Validates a column if it includes values that exceed the maximum allowed length
+* The bot can verify if there are null records in the source file that is expected to have a value.
+* MTDTA_UPLOADER_PARAMS Metadata Table
 
 ### In Progress
 * Verify that the number of rows loaded into the table is matching with the contents of the file.

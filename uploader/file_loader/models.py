@@ -9,33 +9,36 @@
 from django.db import models
 
 
-class TmpTransitionBw(models.Model):
-    service_month = models.CharField(max_length=255, blank=True, null=True)
-    manager_email = models.CharField(max_length=255, blank=True, null=True)
-    employee_id = models.CharField(max_length=255, blank=True, null=True)
-    employee_name = models.CharField(max_length=255, blank=True, null=True)
-    employee_email = models.CharField(max_length=255, blank=True, null=True)
-    pg_level = models.CharField(max_length=255, blank=True, null=True)
-    daily_expected_hours = models.CharField(max_length=255, blank=True, null=True)
-    employee_type = models.CharField(max_length=255, blank=True, null=True)
-    bill_to_county = models.CharField(max_length=255, blank=True, null=True)
-    geography = models.CharField(max_length=255, blank=True, null=True)
-    hp_level = models.CharField(max_length=255, blank=True, null=True)
-    seat_country_code = models.CharField(max_length=255, blank=True, null=True)
-    seat_country = models.CharField(max_length=255, blank=True, null=True)
-    wbs = models.CharField(max_length=255, blank=True, null=True)
-    wbs_description = models.CharField(max_length=255, blank=True, null=True)
-    aa_type = models.CharField(max_length=255, blank=True, null=True)
-    attribute = models.CharField(max_length=255, blank=True, null=True)
-    attribute_2 = models.CharField(max_length=255, blank=True, null=True)
-    short_text = models.CharField(max_length=255, blank=True, null=True)
-    hp_labor_rate = models.DecimalField(max_digits=38, decimal_places=15, blank=True, null=True)
-    usd_labor_currency = models.DecimalField(max_digits=38, decimal_places=15, blank=True, null=True)
-    hours = models.DecimalField(max_digits=38, decimal_places=15, blank=True, null=True)
+class StgTransitionbw(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    service_month = models.TextField(db_column='Service Month', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    manager_email = models.TextField(db_column='Manager Email', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_id = models.TextField(db_column='Employee ID', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_name = models.TextField(db_column='Employee Name', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_email = models.TextField(db_column='Employee Email', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    p_g_level = models.TextField(db_column='P&G Level', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    daily_expected_hours = models.TextField(db_column='Daily Expected Hours', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_type = models.TextField(db_column='Employee Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    bill_to_country = models.TextField(db_column='Bill to Country', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    geography = models.TextField(db_column='Geography', blank=True, null=True)  # Field name made lowercase.
+    hp_level = models.TextField(db_column='HP Level', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    seat_country_code = models.TextField(db_column='Seat Country Code', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    seat_country = models.TextField(db_column='Seat Country', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    wbs = models.TextField(db_column='WBS', blank=True, null=True)  # Field name made lowercase.
+    wbs_description = models.TextField(db_column='WBS Description', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    aa_type = models.TextField(db_column='AA Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    attribute = models.TextField(db_column='Attribute', blank=True, null=True)  # Field name made lowercase.
+    attribute_2 = models.TextField(db_column='Attribute 2', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    short_text = models.TextField(db_column='Short Text', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    hp_labor_rate = models.TextField(db_column='HP Labor Rate', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    usd_labor_currency = models.TextField(db_column='USD / Labor Currency', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    hours = models.TextField(db_column='Hours', blank=True, null=True)  # Field name made lowercase.
+    file_name = models.CharField(max_length=255, blank=True, null=True)
+    file_date = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'TMP_TRANSITION_BW'
+        db_table = 'STG_TRANSITIONBW'
 
 
 class StgItoPdoEmpList(models.Model):
@@ -235,19 +238,209 @@ class StgMasterPrjPortfolio(models.Model):
     class Meta:
         managed = False
         db_table = 'STG_MASTER_PRJ_PORTFOLIO'
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
-
-from django.db import models
 
 
 class StgRawLaborBooking(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    fiscal_year_period = models.CharField(db_column='Fiscal year/period', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    labor_source_1 = models.CharField(db_column='Labor Source 1', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    labor_source_2 = models.CharField(db_column='Labor Source 2', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    posting_date = models.CharField(db_column='Posting Date', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_name = models.CharField(db_column='Employee Name', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee = models.CharField(db_column='Employee', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    e_mail_address_1 = models.CharField(db_column='E-Mail Address 1', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    activity_type = models.CharField(db_column='Activity Type', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    legacy_location_code = models.CharField(db_column='Legacy Location Code', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    master_cost_center = models.CharField(db_column='Master Cost Center', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_region = models.CharField(db_column='Employee Region', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_country = models.CharField(db_column='Employee Country', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    wbs_resp_cost_center = models.CharField(db_column='WBS Resp Cost Center', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    region = models.CharField(db_column='Region', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    country = models.CharField(db_column='Country', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    wbs_1 = models.CharField(db_column='WBS 1', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    wbs_2 = models.CharField(db_column='WBS 2', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    attribute_1 = models.CharField(db_column='Attribute 1', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    short_text = models.CharField(db_column='Short text', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    activity_date = models.CharField(db_column='Activity Date', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    supervisor_1 = models.CharField(db_column='Supervisor 1', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    supervisor_2 = models.CharField(db_column='Supervisor 2', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    e_mail_address_2 = models.CharField(db_column='E-Mail Address 2', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    prj_customer = models.CharField(db_column='PRJ Customer', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    cost_element = models.CharField(db_column='Cost Element', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    currency_code_local = models.CharField(db_column='Currency Code Local', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    activity_hours_1 = models.CharField(db_column='Activity Hours 1', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    total_cost_1 = models.CharField(db_column='Total Cost 1', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    activity_hours_2 = models.CharField(db_column='Activity Hours 2', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    total_cost_2 = models.CharField(db_column='Total Cost 2', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    file_name = models.CharField(max_length=255, blank=True, null=True)
+    file_date = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'STG_RAW_LABOR_BOOKING'
+
+
+class TmpNttrPgband(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    activity_type = models.CharField(db_column='Activity Type', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    pg_band = models.CharField(db_column='PG Band', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    hp_management_level = models.CharField(db_column='HP Management Level', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    file_name = models.CharField(max_length=255, blank=True, null=True)
+    file_date = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'TMP_NTTR_PGBAND'
+
+
+class TmpNttrAacodes(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    aa_code = models.CharField(db_column='AA Code', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    description = models.CharField(db_column='Description', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    catw_category = models.CharField(db_column='CATW Category', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    fte_calculation_type = models.CharField(db_column='FTE Calculation Type', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    wbs_required_field = models.CharField(db_column='WBS Required?', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters. Field renamed because it ended with '_'.
+    comments = models.CharField(db_column='Comments', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    file_name = models.CharField(max_length=255, blank=True, null=True)
+    file_date = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'TMP_NTTR_AACODES'
+
+
+class TmpNttrCountrymapping(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    pg_country = models.CharField(db_column='PG Country', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    source_country = models.CharField(db_column='Source Country', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    file_name = models.CharField(max_length=255, blank=True, null=True)
+    file_date = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'TMP_NTTR_COUNTRYMAPPING'
+
+
+class TmpNttrBwrawAm(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    activity_month = models.TextField(db_column='Activity Month', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    e_mail_address = models.TextField(db_column='E-Mail Address', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee = models.TextField(db_column='Employee', blank=True, null=True)  # Field name made lowercase.
+    employee_1 = models.TextField(db_column='Employee_1', blank=True, null=True)  # Field name made lowercase.
+    e_mail_address_1 = models.TextField(db_column='E-Mail Address_1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_level = models.TextField(db_column='Employee Level', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    daily_work_hours = models.TextField(db_column='Daily work hours', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_type = models.TextField(db_column='Employee Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    country_grouping = models.TextField(db_column='Country Grouping', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    geography = models.TextField(db_column='Geography', blank=True, null=True)  # Field name made lowercase.
+    activity_type = models.TextField(db_column='Activity Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_country = models.TextField(db_column='Employee Country', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_country_1 = models.TextField(db_column='Employee Country_1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    wbs = models.TextField(db_column='WBS', blank=True, null=True)  # Field name made lowercase.
+    wbs_1 = models.TextField(db_column='WBS_1', blank=True, null=True)  # Field name made lowercase.
+    aa_type = models.TextField(db_column='AA Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    attribute_1 = models.TextField(db_column='Attribute 1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    attribute_2 = models.TextField(db_column='Attribute 2', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    short_text = models.TextField(db_column='Short Text', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    actual_labor_rate = models.TextField(db_column='Actual Labor Rate', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    usd_labor_currency = models.TextField(db_column='USD / Labor Currency', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    activity_hours = models.TextField(db_column='Activity Hours', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    file_name = models.TextField()
+    file_date = models.TextField()
+
+    class Meta:
+        managed = False
+        db_table = 'TMP_NTTR_BWRAW_AM'
+
+
+class TmpNttrBwrawApj(models.Model):
+    id = models.BigIntegerField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    activity_month = models.TextField(db_column='Activity Month', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    e_mail_address = models.TextField(db_column='E-Mail Address', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee = models.TextField(db_column='Employee', blank=True, null=True)  # Field name made lowercase.
+    employee_1 = models.TextField(db_column='Employee_1', blank=True, null=True)  # Field name made lowercase.
+    e_mail_address_1 = models.TextField(db_column='E-Mail Address_1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_level = models.TextField(db_column='Employee Level', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    daily_work_hours = models.TextField(db_column='Daily work hours', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_type = models.TextField(db_column='Employee Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    country_grouping = models.TextField(db_column='Country Grouping', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    geography = models.TextField(db_column='Geography', blank=True, null=True)  # Field name made lowercase.
+    activity_type = models.TextField(db_column='Activity Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_country = models.TextField(db_column='Employee Country', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_country_1 = models.TextField(db_column='Employee Country_1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    wbs = models.TextField(db_column='WBS', blank=True, null=True)  # Field name made lowercase.
+    wbs_1 = models.TextField(db_column='WBS_1', blank=True, null=True)  # Field name made lowercase.
+    aa_type = models.TextField(db_column='AA Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    attribute_1 = models.TextField(db_column='Attribute 1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    attribute_2 = models.TextField(db_column='Attribute 2', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    short_text = models.TextField(db_column='Short Text', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    actual_labor_rate = models.TextField(db_column='Actual Labor Rate', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    usd_labor_currency = models.TextField(db_column='USD / Labor Currency', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    activity_hours = models.TextField(db_column='Activity Hours', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    file_name = models.TextField()
+    file_date = models.TextField()
+
+    class Meta:
+        managed = False
+        db_table = 'TMP_NTTR_BWRAW_APJ'
+
+
+class TmpNttrBwrawEmea(models.Model):
+    id = models.BigIntegerField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    activity_month = models.TextField(db_column='Activity Month', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    e_mail_address = models.TextField(db_column='E-Mail Address', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee = models.TextField(db_column='Employee', blank=True, null=True)  # Field name made lowercase.
+    employee_1 = models.TextField(db_column='Employee_1', blank=True, null=True)  # Field name made lowercase.
+    e_mail_address_1 = models.TextField(db_column='E-Mail Address_1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_level = models.TextField(db_column='Employee Level', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    daily_work_hours = models.TextField(db_column='Daily work hours', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_type = models.TextField(db_column='Employee Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    country_grouping = models.TextField(db_column='Country Grouping', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    geography = models.TextField(db_column='Geography', blank=True, null=True)  # Field name made lowercase.
+    activity_type = models.TextField(db_column='Activity Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_country = models.TextField(db_column='Employee Country', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    employee_country_1 = models.TextField(db_column='Employee Country_1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    wbs = models.TextField(db_column='WBS', blank=True, null=True)  # Field name made lowercase.
+    wbs_1 = models.TextField(db_column='WBS_1', blank=True, null=True)  # Field name made lowercase.
+    aa_type = models.TextField(db_column='AA Type', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    attribute_1 = models.TextField(db_column='Attribute 1', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    attribute_2 = models.TextField(db_column='Attribute 2', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    short_text = models.TextField(db_column='Short Text', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    actual_labor_rate = models.TextField(db_column='Actual Labor Rate', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    usd_labor_currency = models.TextField(db_column='USD / Labor Currency', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    activity_hours = models.TextField(db_column='Activity Hours', blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    file_name = models.TextField()
+    file_date = models.TextField()
+
+    class Meta:
+        managed = False
+        db_table = 'TMP_NTTR_BWRAW_EMEA'
+
+
+class TmpNttrFlexpool(models.Model):
+
+    class Meta:
+        managed = False
+        db_table = 'TMP_NTTR_FLEXPOOL'
+
+
+class TmpNttrStaffaug(models.Model):
+
+    class Meta:
+        managed = False
+        db_table = 'TMP_NTTR_STAFFAUG'
+
+
+class TmpNttrPgstructures(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    level = models.CharField(db_column='Level', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    project_def = models.CharField(db_column='Project Def', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    project_profile = models.CharField(db_column='Project Profile', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    wbs_element = models.CharField(db_column='WBS element', max_length=255, blank=True, null=True)  # Field name made lowercase. Field renamed to remove unsuitable characters.
+    description = models.CharField(db_column='Description', max_length=255, blank=True, null=True)  # Field name made lowercase.
+    file_name = models.CharField(max_length=255, blank=True, null=True)
+    file_date = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'TMP_NTTR_PGSTRUCTURES'

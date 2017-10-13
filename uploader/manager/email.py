@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 
 class EmailLogic:
 
-    def sendEmailNotification(self, uploaderMetadataRaw, valid, responses, errors, warnings):
+    def sendEmailNotification(self, uploaderMetadataRaw, fileFullPath, valid, responses, errors, warnings):
 
         # SMTP used by the enterprise
         smtp = 'smtp.svcs.entsvcs.com'        
@@ -57,12 +57,18 @@ class EmailLogic:
 
         html = """<html><head></head><body><font face="Arial">
         """ + \
-        "<p>" + responses[0] + "</p>"
+        "<p><b>Status: </b>" + responses[0] + "</p>"
         
         if(warnings):
             html = html + "<p><b>Warnings:</b></p><ul>" + warningListHTML + "</ul>"
         if(errors):
-            html = html + "<p><b>Errors:</b></p><ul>" + errorListHTML + "</ul>"
+            html = html + "<p><b>Errors:</b></p><ul style='color:red'>" + errorListHTML + "</ul>"
+
+        html = html + "<p><b>Server: </b>" + uploaderMetadataRaw[11] + "</p>"
+        html = html + "<p><b>Schema: </b>" + uploaderMetadataRaw[7] + "</p>"
+        html = html + "<p><b>Target Table: </b>" + uploaderMetadataRaw[8] + "</p>"
+        html = html + "<p><b>Input File: </b>" + fileFullPath + "</p>"
+
 
         html = html + """</font></body></html>"""
 

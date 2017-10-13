@@ -9,6 +9,7 @@ class MTDTA_UPLOADER(models.Model):
     file_name = models.CharField(max_length=255, default = '')
     file_type = models.CharField(max_length=255, default = '.xlsx')
     sheet_name = models.CharField(max_length=255, default = 'Sheet1')
+    delimiter = models.CharField(max_length=255, default = ',')
     start_row = models.IntegerField(default = 0)
     target_schema = models.CharField(max_length=255, default = 'FPD')
     target_table = models.CharField(max_length=255, default = 'TMP_')
@@ -62,3 +63,20 @@ class MTDTA_UPLOADER_COLS(models.Model):
     class Meta:
         managed = True
         db_table = 'MTDTA_UPLOADER_COLS'
+
+class UTL_FILE_LOADER_BOT_LOGS(models.Model):
+    id = models.AutoField(primary_key=True)
+    uploader_name = models.CharField(max_length=255)
+    last_update_uid = models.CharField(max_length=255)
+    update_start_timestamp = models.DateTimeField()
+    update_end_timestamp = models.DateTimeField()
+    status = models.CharField(max_length=255)
+    error_details = models.CharField(max_length=4000, null=True)
+    warning_details = models.CharField(max_length=4000, null=True)
+    input_file = models.CharField(max_length=4000, null=True)
+    email_sent = models.CharField(max_length=255)
+    table_truncated = models.CharField(max_length=255)
+    
+    class Meta:
+        managed = True
+        db_table = 'UTL_FILE_LOADER_BOT_LOGS'

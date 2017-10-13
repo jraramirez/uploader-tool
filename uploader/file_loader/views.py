@@ -3,7 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.urls import reverse
 from django.views import generic
 from django import forms
+from django.utils import timezone
 import openpyxl
+import datetime
 
 from manager.uploader import UploadLogic
 from manager.insert import InsertLogic
@@ -21,22 +23,27 @@ def index(request):
 # Auto-Upload View
 def auto_upload(request, uploader_name):
     form = None
+    valid = True
+    sendEmail = True
+    truncate = False
+    inputFile = None
+    fileFullPath = None
+    startTimeStamp = timezone.now()
+
+    # TODO: use dictionary instead of lists
     errors = []
     ers = []
     warnings = []
-    # TODO: use dictionary instead of lists
     returned = []
     responses = []
-    valid = True
-    inputFile = None
 
     uploaderMetadata = []
     uploaderMetadataRaw = []
-    uploaderMetadataParameters = []
+    # uploaderMetadataParameters = []
     uploaderMetadataColumns = []
 
     uploaderMetadataLables = []
-    uploaderMetadataParameterLabels = []
+    # uploaderMetadataParameterLabels = []
     uploaderMetadataColumnLabels = []
    
     # Get uploader metadata from database
@@ -53,14 +60,14 @@ def auto_upload(request, uploader_name):
         uploaderMetadata = zip(uploaderMetadataLabels, uploaderMetadataRaw)
 
     # Get uploader metadata parameters from database
-    if(valid):
-        returned = logic.getUploaderMetadataParameters(logic, uploader_name)
-        uploaderMetadataParameters = returned[0]
-        valid = returned[1]
-        ers = returned[2]
-        for e in ers:
-            errors.append(e)
-        uploaderMetadataParameterLabels = logic.getUploaderMetadataParameterLabels(logic)
+    # if(valid):
+    #     returned = logic.getUploaderMetadataParameters(logic, uploader_name)
+    #     uploaderMetadataParameters = returned[0]
+    #     valid = returned[1]
+    #     ers = returned[2]
+    #     for e in ers:
+    #         errors.append(e)
+    #     uploaderMetadataParameterLabels = logic.getUploaderMetadataParameterLabels(logic)
 
     # Get uploader metadata columns from database
     if(valid):
@@ -77,12 +84,14 @@ def auto_upload(request, uploader_name):
         returned = logic.validateFile(logic, uploaderMetadataRaw)
         valid = returned[1]
         ers = returned[2]
+        sendEmail = returned[3]
         for e in ers:
             errors.append(e)
     
     # Validate file metadata
     if(valid):
         inputFile = logic.getInputFile(logic, uploaderMetadataRaw)
+        fileFullPath = inputFile.name
         returned = logic.validateFileMetadata(logic, inputFile, uploaderMetadataRaw, uploaderMetadataColumns, 'auto')
         valid = returned[1]
         ers = returned[2]
@@ -97,18 +106,28 @@ def auto_upload(request, uploader_name):
         for e in ers:
             errors.append(e)
         warnings = returned[3]
-    
-    if(valid and warnings):
-        responses.append("File upload successful with warnings")
-    elif(valid and not warnings):
-        responses.append("File upload successful.")
-    else:
+
+    # TODO: Decide when to truncate
+    if(errors):
+        truncate = True
+
+    if(errors):
         responses.append("File upload have errors.")
+    else:
+        responses.append("File upload successful.")
+    
+    if(truncate):
+        print("Truncated")
         ilogic.truncateTable(ilogic, uploaderMetadataRaw)
 
     # Move file after processing
-    if(inputFile):
-        inputFile.close()
+    try:
+        if(inputFile):
+            inputFile.close()   
+    except Exception:
+        valid = False
+        errors.append("The process cannot access the input file because it is being used by another process.")
+
     returned = logic.moveFile(logic, valid, uploaderMetadataRaw)
     valid = returned[1]
     ers = returned[2]
@@ -116,13 +135,17 @@ def auto_upload(request, uploader_name):
         errors.append(e)
 
     # Email all notifications
-    if("No files were found in the source folder." not in errors):
+    if(sendEmail):
         elogic = EmailLogic 
-        returned = elogic.sendEmailNotification(elogic, uploaderMetadataRaw, valid, responses, errors, warnings)
+        returned = elogic.sendEmailNotification(elogic, uploaderMetadataRaw, fileFullPath, valid, responses, errors, warnings)
         valid = returned[1]
         ers = returned[2]
         for e in ers:
             errors.append(e)
+
+    # Insert log to log table
+    if(sendEmail):
+        returned = ilogic.insertLog(uploaderMetadataRaw, fileFullPath, errors, warnings, sendEmail, truncate, startTimeStamp, )
 
     return render(
         request,
@@ -135,8 +158,8 @@ def auto_upload(request, uploader_name):
             'warnings': warnings,
             'uploader_name': uploader_name,
             'uploaderMetadata': uploaderMetadata,
-            'uploaderMetadataParameters': uploaderMetadataParameters,
-            'uploaderMetadataParameterLabels': uploaderMetadataParameterLabels,
+            # 'uploaderMetadataParameters': uploaderMetadataParameters,
+            # 'uploaderMetadataParameterLabels': uploaderMetadataParameterLabels,
             'uploaderMetadataColumns': uploaderMetadataColumns,
             'uploaderMetadataColumnLabels': uploaderMetadataColumnLabels,
         },
@@ -155,11 +178,11 @@ def upload(request, uploader_name):
 
     uploaderMetadata = []
     uploaderMetadataRaw = []
-    uploaderMetadataParameters = []
+    # uploaderMetadataParameters = []
     uploaderMetadataColumns = []
 
     uploaderMetadataLables = []
-    uploaderMetadataParameterLabels = []
+    # uploaderMetadataParameterLabels = []
     uploaderMetadataColumnLabels = []
 
     # Get uploader metadata from database
@@ -176,14 +199,14 @@ def upload(request, uploader_name):
         uploaderMetadata = zip(uploaderMetadataLabels, uploaderMetadataRaw)
 
     # Get uploader metadata parameters from database
-    if(valid):
-        returned = logic.getUploaderMetadataParameters(logic, uploader_name)
-        uploaderMetadataParameters = returned[0]
-        valid = returned[1]
-        ers = returned[2]
-        for e in ers:
-            errors.append(e)
-        uploaderMetadataParameterLabels = logic.getUploaderMetadataParameterLabels(logic)
+    # if(valid):
+    #     returned = logic.getUploaderMetadataParameters(logic, uploader_name)
+    #     uploaderMetadataParameters = returned[0]
+    #     valid = returned[1]
+    #     ers = returned[2]
+    #     for e in ers:
+    #         errors.append(e)
+    #     uploaderMetadataParameterLabels = logic.getUploaderMetadataParameterLabels(logic)
 
     # Get uploader metadata columns from database
     if(valid):
@@ -222,9 +245,14 @@ def upload(request, uploader_name):
             responses.append("File upload successful.")
         else:
             responses.append("File upload have errors.")
+            # TODO: Truncate using the truncate variable
             ilogic.truncateTable(ilogic, uploaderMetadataRaw)
-        if(inputFile):
-          inputFile.close()
+        try:       
+            if(inputFile):
+                inputFile.close()
+        except Exception:
+            valid = False
+            errors.append("The process cannot access the input file because it is being used by another process.")
 
     # Validate File
     elif(request.method == "POST" and request.POST.get('validate metadata')):    
@@ -238,8 +266,13 @@ def upload(request, uploader_name):
             errors.append(e)
         if(valid):
             responses.append("Metadata is valid.")
-        if(inputFile):
-            inputFile.close()
+        
+        try:
+            if(inputFile):
+                inputFile.close()
+        except Exception:
+            valid = False
+            errors.append("The process cannot access the input file because it is being used by another process.")
 
     # Default View
     else:
@@ -256,8 +289,8 @@ def upload(request, uploader_name):
             'warnings': warnings,
             'uploader_name': uploader_name,
             'uploaderMetadata': uploaderMetadata,
-            'uploaderMetadataParameters': uploaderMetadataParameters,
-            'uploaderMetadataParameterLabels': uploaderMetadataParameterLabels,
+            # 'uploaderMetadataParameters': uploaderMetadataParameters,
+            # 'uploaderMetadataParameterLabels': uploaderMetadataParameterLabels,
             'uploaderMetadataColumns': uploaderMetadataColumns,
             'uploaderMetadataColumnLabels': uploaderMetadataColumnLabels,
         },
